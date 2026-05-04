@@ -1,0 +1,2872 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root{
+--bg:#f3f6fb;
+--surface:rgba(255,255,255,.84);
+--surface-solid:#fff;
+--text:#0f172a;
+--muted:#64748b;
+--border:rgba(148,163,184,.18);
+--primary:#2563eb;
+--primary-2:#0ea5e9;
+--success: #16a34a;
+--danger:#dc2626;
+--warning:#d97706;
+--shadow:0 18px 40px rgba(15,23,42,.10);
+--shadow-soft:0 10px 22px rgba(15,23,42,.06);
+--r-xl:28px;
+--r-lg:22px;
+}
+*{box-sizing: border-box}
+html, body{margin:0;min-height:100%}
+body {
+background: linear-gradient(180deg, #f9fbff 0%, var(--bg) 100%);
+color:var(--text);
+font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+padding-bottom:108px;
+-webkit-font-smoothing: antialiased;
+text-rendering: optimizeLegibility;
+}
+.hidden-soft{display:none !important;}
+.app-shell{max-width: 1280px; margin:0 auto; padding:0 14px}
+.btn{border-radius: 14px; font-weight:800; letter-spacing:.1px}
+.btn-primary{background: linear-gradient(135deg, var(--primary), var(--primary-2)); border:0;box-shadow:0 14px 30px rgba(37,99,235,.18)}
+.btn-outline-primary{border-color:rgba(37,99,235,.18); color: #1d4ed8; background:rgba(255,255,255,.88)}
+.btn-outline-danger{border-color:rgba(220,38,38,.18); color: #b91c1c;background:rgba(255,255,255,.94)}
+.btn-outline-success{border-color:rgba(22,163,74,.2); color: #15803d; background:rgba(255,255,255,.94)}
+.form-control,.form-select{border-radius: 14px; border:1px solid rgba(148,163,184,.22); background:rgba(255,255,255,.94); box-shadow:none !important}
+.form-control:focus,.form-select:focus {border-color:rgba(37,99,235,.45); box-shadow:0 0 0 .2rem rgba(37,99,235,.08) !important}
+#login-overlay{
+position:fixed; inset:0; z-index:2000;
+display: flex; align-items:center; justify-content:center;
+padding: 16px; overflow:auto;
+background: linear-gradient(180deg, #f8fbff 0%, #edf4ff 100%);
+}
+.login-card{
+width:min(100%,980px); max-height:calc(100dvh - 32px);
+border:1px solid rgba(148, 163, 184,.16); border-radius: 32px;
+background:rgba(255,255,255,.76); backdrop-filter:blur(18px);
+box-shadow: var(--shadow); overflow:auto;
+}
+.login-grid{display:grid; grid-template-columns:1.1fr .9fr; min-height:560px}
+.login-left{padding: 38px;border-right:1px solid rgba(148,163,184,.14)}
+.login-brand{display: flex; align-items:center; gap:14px}
+.brand-mark{
+width:64px;height:64px;border-radius: 20px;display:grid; place-items:center;
+background: linear-gradient(135deg, var(--primary), var(--primary-2));
+color:#fff;box-shadow:0 16px 30px rgba(37,99,235,.24); font-size:1.4rem;
+}
+.login-copy h1{margin:0;font-size:2rem;line-height: 1; font-weight:900; letter-spacing:-.04em}
+.login-copy p{margin:10px 0 0; color:var(--muted); max-width:520px; font-size:.98rem}
+.feature-grid{display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; margin-top:24px}
+.feature-card{
+background:rgba(255,255,255,.68); border:1px solid rgba(148,163,184,.16);
+border-radius: 22px;padding: 16px; box-shadow:var(--shadow-soft);
+}
+.feature-card i{
+display:inline-grid; place-items:center; width: 38px; height: 38px; border-radius:14px;
+background:rgba(37,99,235,.08); color:#1d4ed8; font-size:1.05rem; margin-bottom:10px;
+}
+.feature-card h6{margin:0 0 4px; font-weight:900}
+.feature-card p{margin:0;color:var(--muted); font-size:.88rem; line-height:1.45}
+.login-right {padding:38px; display: flex;align-items:center; justify-content:center}
+.login-form-card{width: 100%; max-width:380px;padding:8px 0}
+.login-form-card .form-control{height: 50px; padding-left:14px;padding-right:14px}
+.login-title{font-size:1.55rem; font-weight:900;margin:0 0 6px; letter-spacing:-.03em}
+.login-subtitle {color:var(--muted); margin:0 0 24px; font-size:.95rem}
+.login-footer-note{text-align:center; color:var(--muted); font-size:.82rem; margin-top:14px}
+#main-app{max-width: 1280px; margin:0 auto}
+.top-bar{
+position:sticky;top:0;z-index:900;padding: 14px 14px 10px;
+background: linear-gradient(180deg, rgba(243,246,251,.98) 0%, rgba(243,246,251,.84) 100%);
+backdrop-filter:blur(16px); border-bottom:1px solid rgba(148,163,184,.14);
+}
+.top-shell{display: flex; flex-wrap:wrap; align-items:center; justify-content: space-between; gap:14px}
+.app-title{display: flex; align-items:center; gap:12px;min-width:0}
+.app-title h2 {margin:0;font-size:1.25rem;font-weight:900; letter-spacing:-.03em}
+.app-title small{display:block;color:var(--muted); font-size:.84rem; margin-top:2px}
+.title-icon{
+width:46px; height: 46px;border-radius: 16px; display:grid; place-items:center;
+color:#fff;background: linear-gradient(135deg, var(--primary), var(--primary-2));
+box-shadow:0 12px 22px rgba(37,99,235,.18); flex:0 0 auto;
+}
+.search-wrap{position:relative; min-width: min(100%, 420px); flex:1 1 420px}
+.search-wrap::before{
+content:"\f52a";font-family: "Bootstrap Icons"; position:absolute; left:16px; top:50%;
+transform: translateY(-50%); color:#94a3b8; pointer-events:none;
+}
+#global-search {
+height:50px; padding-left: 44px; border-radius: 999px;border:1px solid rgba(148,163,184,.24);
+box-shadow: var(--shadow-soft); background:rgba(255,255,255,.92);
+}
+.user-chip{
+display:inline-flex; align-items:center; gap:8px; padding: 10px 14px; border-radius:999px;
+background:rgba(255,255,255,.9); border:1px solid rgba(148,163,184,.18); box-shadow:var(--shadow-soft);
+white-space: nowrap; font-size:.88rem;color:#334155;
+}
+.user-chip strong{font-weight:900;color:#0f172a}
+.section{display: none; padding: 10px 14px 18px}
+.section.active{display:block}
+.panel{background: var(--surface); border:1px solid var(--border); border-radius: var(--r-xl); box-shadow: var(--shadow-soft); padding: 16px; backdrop-filter:blur(14px)}
+.subtle-label{display:inline-flex; align-items:center; gap:8px; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase;color:var(--muted); font-weight:900}
+.metric-row{display:grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; margin:0 14px 14px}
+.metric-card{
+background:rgba(255,255,255,.9); border:1px solid rgba(148,163,184,.14);
+border-radius: 22px; padding: 16px; box-shadow:var(--shadow-soft);
+display: flex; align-items: center; justify-content:space-between; gap:12px;
+}
+.metric-card .meta{min-width:0}
+.metric-card .meta .label{color:var(--muted); font-size:.82rem; font-weight:800; text-transform:uppercase; letter-spacing:.10em; margin-bottom:4px}
+.metric-card .meta .value{font-size:1.55rem; line-height:1; font-weight:900; letter-spacing:-.04em}
+.metric-icon{width:46px;height: 46px; border-radius: 16px; display:grid; place-items:center; font-size:1.1rem; color: #1d4ed8; background:rgba(37,99,235,.08); flex:0 0 auto}
+.chip-group .btn{border-radius: 999px !important;padding:7px 14px; font-size:.84rem; font-weight:800}
+.chip-group .btn-check:checked + .btn-outline-primary{background: linear-gradient(135deg, var(--primary), var(--primary-2));color:#fff;border-color: transparent; box-shadow:0 12px 22px rgba(37,99,235,.18)}
+.form-switch .form-check-input{width:2.7rem; height:1.45rem; cursor:pointer}
+.form-switch .form-check-input:checked {background-color:var(--success); border-color: var(--success)}
+.item-card{
+background: var(--surface-solid); border-radius:var(--r-lg); padding: 16px; margin-bottom:12px;
+box-shadow:var(--shadow-soft); border: 1px solid rgba(148,163,184,.13);
+}
+.item-top{display: flex; align-items: flex-start; justify-content:space-between; gap: 14px;margin-bottom:14px}
+.item-left{min-width:0;flex:1 1 auto; display: flex; align-items:flex-start; gap:12px}
+.item-icon{width: 44px;height: 44px; border-radius: 16px; display:grid; place-items:center; background:rgba(37,99,235,.08); color:#1d4ed8; font-size:1.05rem; flex:0 0 auto}
+.item-title{font-weight:900; letter-spacing:-.02em;line-height:1.2;margin:0; word-break: break-word}
+.item-sub{color:var(--muted); font-size:.86rem; margin-top:4px}
+.item-note{margin-top:8px;padding: 10px 12px; border-radius:14px; background:#f8fafc;border: 1px solid rgba(148,163,184,.14); color: #334155; font-size:.86rem; display: flex; gap:8px;align-items: flex-start}
+.qty-display{font-size:1.9rem; line-height: 1; font-weight:900;letter-spacing:-.04em;color:#0f172a; flex:0 0 auto}
+.qty-display.text-danger{color:var(--danger) !important}
+.item-actions{display:grid; grid-template-columns:1fr 1fr;gap:10px}
+.item-card .btn{border-radius: 14px; padding: 10px 12px; font-weight:800}
+.section-title{display: flex; align-items:center; justify-content:space-between; gap: 12px; margin: 20px 4px 10px;color:var(--muted); text-transform:uppercase; letter-spacing:.12em; font-size:.77rem;font-weight:900}
+.section-title::after{content:""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(148,163,184,.25), transparent); margin-left:12px}
+.day-pill{display: flex; gap:10px; overflow-x:auto; padding: 2px 2px 12px 2px; scrollbar-width:none}
+.day-pill::-webkit-scrollbar {display:none}
+.day-btn{white-space:nowrap; border-radius: 999px;padding: 8px 16px; border: 1px solid rgba(148,163,184,.22); background:rgba(255,255,255,.88); font-size:.85rem; font-weight:800;color:#334155;box-shadow:0 6px 14px rgba(15,23,42,.04)}
+.day-btn.active {background: linear-gradient(135deg, var(--primary), var(--primary-2)); color:#fff;border-color: transparent; box-shadow:0 12px 22px rgba(37,99,235,.18)}
+.nav-bottom{
+position:fixed; left:0;right:0;bottom:0;z-index: 1000; display: flex;gap:8px;
+padding: 10px 10px 12px; background:rgba(255,255,255,.88); backdrop-filter:blur(16px);
+border-top: 1px solid rgba(148,163,184,.16); box-shadow: 0 -12px 30px rgba(15,23,42,.05);
+}
+.nav-item{flex:1;border:0;background:none; border-radius: 16px;padding: 10px 8px;color:#94a3b8; font-size:.75rem; font-weight:800; transition:.18s ease; display: flex; flex-direction: column; align-items:center; justify-content:center;gap:5px}
+.nav-item i{font-size:1.05rem; line-height:1}
+.nav-item.active{color:var(--primary); background:rgba(37,99,235,.08)}
+.nav-item:hover{color:#1d4ed8}
+.app-toast-stack{position:fixed; top: 16px; right:16px;z-index: 3500; display: flex; flex-direction:column; gap:10px;width:min(360px, calc(100vw - 32px)); pointer-events:none}
+.app-toast{pointer-events: auto; display: flex; align-items:flex-start; gap:12px;padding: 14px; border-radius: 18px;background:rgba(15,23,42,.94); color:#fff;box-shadow:0 18px 34px rgba(15,23,42,.22); transform: translateX(120%); opacity:0;animation:toastIn .24s ease forwards; border: 1px solid rgba(255,255,255,.08)}
+.app-toast.success{background:rgba(22,163,74,.95)}
+.app-toast.error{background:rgba(220,38,38,.95)}
+.app-toast.warning {background:rgba(217,119,6,.95)}
+.app-toast.info{background:rgba(15,23,42,.95)}
+.app-toast-icon{width:30px; height: 30px; border-radius:10px; display:grid; place-items:center; flex:0 0 30px; background:rgba(255,255,255,.12); font-size:1rem}
+.app-toast-body{flex:1;min-width:0}
+.app-toast-title{font-weight:900;font-size:.92rem;line-height:1.25;margin:0}
+.app-toast-text{margin:3px 0 0; font-size:.82rem; opacity:.9;line-height:1.35}
+.app-toast-close{border: 0; background: transparent; color: rgba(255,255,255,.75); font-size:1rem; line-height:1; margin-top:1px;padding:0}
+.app-toast.hide-toast{animation:toastOut .22s ease forwards}
+@keyframes toastIn{from{transform: translateX(120%); opacity:0} to{transform: translateX(0); opacity:1}}
+@keyframes toastOut{from{transform: translateX(0); opacity:1} to{transform: translateX(120%); opacity:0}}
+.tab-loader{position:fixed; inset:0;z-index:2600;display: flex; align-items: center; justify-content:center; background:rgba(243,246,251,.58); backdrop-filter:blur(10px); opacity:0;visibility:hidden; transition:opacity .2s ease, visibility .2s ease}
+.tab-loader.show{opacity:1;visibility:visible}
+.tab-loader-card{min-width: 240px;padding:24px 22px; border-radius: 24px; text-align:center; background:rgba(255,255,255,.94); border:1px solid rgba(148,163,184,.16); box-shadow: var(--shadow)}
+.tab-loader-title{margin-top: 12px; font-weight:900; letter-spacing:-.02em}
+.tab-loader-subtitle{margin-top:4px;color:var(--muted); font-size:.88rem}
+.modal-content{border: 0; border-radius: 26px; box-shadow:var(--shadow); overflow:hidden}
+.modal-body {padding: 22px !important}
+#actionModal .form-control, #userModal .form-control, #userModal .form-select, #orderModal .form-control, #orderModal .form-select{border-radius:14px; border:1px solid rgba(148, 163, 184,.22); height: 46px}
+#actionModal .form-control:focus, #userModal .form-control:focus, #userModal .form-select:focus, #orderModal .form-control:focus, #orderModal .form-select:focus {border-color:rgba(37,99,235,.45); box-shadow:0 0 0 .2rem rgba(37,99,235,.08)}
+.mini-pill{display:inline-flex; align-items:center; gap: 6px;padding:7px 10px; border-radius: 999px;background:rgba(37,99,235,.08); color: #1d4ed8; font-size:.78rem; font-weight:800}
+.history-note{background:#f8fafc;border:1px solid rgba(148,163,184,.14); border-radius: 14px;padding:10px 12px; font-size:.88rem; color:#334155}
+.empty-state{background:rgba(255,255,255,.78); border:1px dashed rgba(148, 163, 184,.30); border-radius: 24px; padding:30px 18px; text-align:center; box-shadow: var(--shadow-soft)}
+.empty-state i{font-size:1.55rem;color:#94a3b8}
+.empty-state h6 {margin:12px 0 6px; font-weight:900}
+.empty-state p{margin:0;color:var(--muted); font-size:.92rem}
+.history-group{background:rgba(255,255,255,.9); border:1px solid rgba(148, 163, 184,.14); border-radius: 22px; box-shadow:var(--shadow-soft); overflow:hidden;margin-bottom:12px}
+.history-group-btn{width:100%;border:0;background:none; padding: 16px; text-align:left;display: flex; align-items:center; justify-content:space-between; gap:12px}
+.history-group-main{min-width:0;display: flex; align-items:center;gap:12px}
+.history-group-icon{width: 44px;height:44px;border-radius:16px;display:grid; place-items:center; background:rgba(37,99,235,.08); color:#1d4ed8;flex:0 0 auto}
+.history-group-title{font-weight:900;margin:0; line-height:1.2; word-break:break-word}
+.history-group-sub{color:var(--muted); font-size:.84rem; margin-top:4px}
+.history-group-meta{text-align:right; flex:0 0 auto}
+.history-group-meta .badge{border-radius: 999px; padding:.55rem .75rem; font-weight:800}
+.history-inner {border-top: 1px solid rgba(148,163,184,.14); padding:12px 16px 16px; background:#f8fafc}
+.history-entry{background:#fff;border:1px solid rgba(148, 163, 184,.14); border-radius: 16px;padding:12px 12px; margin-bottom:10px}
+.history-entry:last-child{margin-bottom:0}
+.history-entry-top{display: flex; align-items:flex-start; justify-content: space-between; gap:12px}
+.history-entry-time{font-size:.83rem;color:var(--muted); margin-top:4px}
+.order-builder-table thead th, .modern-table thead th{font-size:.78rem; text-transform:uppercase; letter-spacing:.08em;color:var(--muted); background:#f8fafc;white-space:nowrap}
+.modern-table td, .order-builder-table td{vertical-align:middle}
+.stock-top-actions {display: flex; gap: 10px; flex-wrap:wrap;margin:0 14px 12px}
+.category-jump-row{display: flex; gap: 10px; overflow-x:auto;padding: 2px 0 4px; scrollbar-width:none; scroll-behavior:smooth}
+.category-jump-row::-webkit-scrollbar {display:none}
+.category-jump-btn{border: 1px solid rgba(148,163,184,.22); background:rgba(255,255,255,.92);color:#334155; border-radius: 999px;padding: 8px 14px; font-size:.84rem; font-weight:800; box-shadow:var(--shadow-soft); white-space:nowrap}
+.category-jump-btn:hover{border-color:rgba(37,99,235,.24); color: #1d4ed8}
+.order-actions-top{position:absolute;top: 12px; right:12px}
+.pdf-btn{border-radius: 10px; padding:6px 10px; display: flex; align-items:center; justify-content:center}
+.pdf-btn i{font-size:14px}
+.order-select-th,.order-select-td{width:72px;text-align:center; vertical-align:middle}
+.pdf-choice-box{display: flex; gap:12px;margin-top:15px}
+.pdf-choice-btn{flex:1;border-radius: 12px; padding: 14px; font-weight:600; border:1px solid #e5e7eb; background:#fff;transition:.2s}
+.pdf-choice-btn:hover{transform: translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,0.08)}
+.pdf-choice-btn.internal{border-color:#0d6efd;color:#0d6efd}
+.pdf-choice-btn.external{border-color: #198754;color:#198754}
+.order-bulk-bar,.stock-bulk-bar{display: flex; gap: 12px; align-items:center; flex-wrap:wrap}
+
+@media (max-width: 992px) {
+.login-grid{grid-template-columns:1fr}
+.login-left{border-right: 0; border-bottom:1px solid rgba(148,163,184,.14); min-height:auto}
+.feature-grid{grid-template-columns:1fr}
+.metric-row{grid-template-columns: repeat(2, minmax(0,1fr))}
+}
+
+@media (max-width: 640px) {
+body {padding-bottom:106px}
+.app-shell{padding:0 10px}
+.top-bar{padding:12px 10px 8px}
+.section{padding: 10px 10px 18px}
+.panel{padding: 14px; border-radius: 22px}
+.item-card{padding: 14px; border-radius:20px}
+.qty-display{font-size:1.65rem}
+.nav-item{font-size:.70rem; padding:9px 6px}
+.login-left,.login-right{padding: 18px}
+.login-copy h1{font-size:1.45rem}
+.metric-row{grid-template-columns:1fr}
+.top-shell{gap:12px}
+.search-wrap{min-width: 100%; flex-basis:100%}
+.item-actions{grid-template-columns:1fr}
+.item-top{gap:10px}
+.login-card{max-height:calc(100dvh - 24px)}
+}
+</style>
+</head>
+<body>
+<div id="status-toast" class="app-toast-stack"></div>
+<div id="tab-loader" class="tab-loader d-none">
+<div class="tab-loader-card">
+<div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+<div id="tab-loader-title" class="tab-loader-title">Loading</div>
+<div id="tab-loader-subtitle" class="tab-loader-subtitle">Please wait</div>
+</div>
+</div>
+
+<div id="login-overlay">
+<div class="login-card">
+<div class="login-grid">
+<div class="login-left">
+<div>
+<div class="login-brand">
+<div class="brand-mark"><i class="bi bi-box-seam"></i></div>
+<div class="login-copy">
+<h1>SWA Meat and Fish Market</h1>
+<p>Clean inventory control for fast daily updates, staff access, and activity tracking.</p>
+</div>
+</div>
+<div class="feature-grid">
+<div class="feature-card">
+<i class="bi bi-lightning-charge"></i>
+<h6>Fast actions</h6>
+<p>Update quantities with instant feedback and smooth transitions.</p>
+</div>
+<div class="feature-card">
+<i class="bi bi-shield-lock"></i>
+<h6>Staff access</h6>
+<p>Separate roles for admin and users with controlled visibility.</p>
+</div>
+<div class="feature-card">
+<i class="bi bi-journal-text"></i>
+<h6>Live logs</h6>
+<p>Track stock changes with time, user, and notes in a readable view.</p>
+</div>
+<div class="feature-card">
+<i class="bi bi-phone"></i>
+<h6>Responsive UI</h6>
+<p>Optimized for mobile, tablet, and desktop without changing your logic.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="login-right">
+<div class="login-form-card">
+<h3 class="login-title">Sign in</h3>
+<p class="login-subtitle">Enter your staff credentials to continue.</p>
+<input type="text" id="user" class="form-control mb-2" placeholder="Username" autocomplete="username">
+<input type="password" id="pass" class="form-control mb-3" placeholder="Password" autocomplete="current-password">
+<button id="login-btn" class="btn btn-primary w-100 py-2" onclick="attemptLogin()">
+<span class="btn-label">Sign In</span>
+</button>
+<div id="login-err" class="text-danger mt-2 small text-center"></div>
+<div class="login-footer-note">Secure access for inventory and staff operations</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="main-app" class="d-none">
+<div class="top-bar">
+<div class="app-shell">
+<div class="top-shell">
+<div class="app-title">
+<div class="title-icon"><i class="bi bi-box-seam"></i></div>
+<div>
+<h2>SWA Meat and Fish Market</h2>
+<small>Modern inventory workspace</small>
+</div>
+</div>
+<div class="d-flex align-items-center gap-2 flex-wrap">
+<div class="user-chip">
+<i class="bi bi-person-circle"></i>
+<span>Logged in as: <strong id="current-user-label">-</strong></span>
+</div>
+<button class="btn btn-outline-danger" onclick="logout()">
+<i class="bi bi-box-arrow-right me-1"></i> Logout
+</button>
+<div class="search-wrap">
+<input type="text" id="global-search" class="form-control" placeholder="Search..." onkeyup="handleSearch()">
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="app-shell">
+<div id="sec-stock" class="section active">
+<div class="metric-row">
+<div class="metric-card"><div class="meta"><div class="label">Items</div><div class="value" id="metric-items">0</div></div><div class="metric-icon"><i class="bi bi-grid-3x3-gap"></i></div></div>
+<div class="metric-card"><div class="meta"><div class="label">Total qty</div><div class="value" id="metric-qty">0</div></div><div class="metric-icon"><i class="bi bi-boxes"></i></div></div>
+<div class="metric-card"><div class="meta"><div class="label">Low stock</div><div class="value" id="metric-low">0</div></div><div class="metric-icon"><i class="bi bi-exclamation-triangle"></i></div></div>
+<div class="metric-card"><div class="meta"><div class="label">Categories</div><div class="value" id="metric-cats">0</div></div><div class="metric-icon"><i class="bi bi-tags"></i></div></div>
+</div>
+<div class="panel mb-3">
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+<div class="subtle-label"><i class="bi bi-funnel"></i> Categories</div>
+<div class="stock-bulk-bar">
+<div class="form-check form-switch m-0">
+<input class="form-check-input" type="checkbox" id="stock-bulk-toggle" onchange="toggleStockBulkMode(this.checked)">
+<label class="form-check-label small fw-bold" for="stock-bulk-toggle">Bulk update</label>
+</div>
+
+<button class="btn btn-success" onclick="openItemModal()">
+  <i class="bi bi-plus-lg me-1"></i> Add New Item
+</button>
+
+
+
+<button class="btn btn-primary d-none" id="stock-bulk-save-btn" onclick="saveBulkStockUpdates()">Update all</button>
+<button class="btn btn-outline-primary" onclick="downloadInventoryPDF()"><i class="bi bi-file-earmark-pdf me-1"></i> Download PDF</button>
+</div>
+</div>
+<div id="category-jump-row" class="category-jump-row mb-3"></div>
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+<div class="d-flex flex-column gap-2 flex-grow-1">
+<div class="btn-group shadow-sm chip-group" role="group" aria-label="Location filters">
+<input type="radio" class="btn-check" name="loc" id="loc-all" checked onclick="updateCategoryDropdown()">
+<label class="btn btn-outline-primary btn-sm" for="loc-all">All</label>
+<input type="radio" class="btn-check" name="loc" id="loc-fridge" onclick="updateCategoryDropdown()">
+<label class="btn btn-outline-primary btn-sm" for="loc-fridge">Fridge</label>
+<input type="radio" class="btn-check" name="loc" id="loc-freezer" onclick="updateCategoryDropdown()">
+<label class="btn btn-outline-primary btn-sm" for="loc-freezer">Freezer</label>
+</div>
+<select id="sub-category-filter" class="form-select form-select-sm" onchange="renderStock()">
+<option value="ALL">All Categories</option>
+</select>
+</div>
+<div class="form-check form-switch mb-0">
+<input class="form-check-input" type="checkbox" id="low-stock" onclick="renderStock()">
+<label class="form-check-label small fw-bold text-danger" for="low-stock">Low stock only</label>
+</div>
+</div>
+</div>
+<div id="stock-list"></div>
+</div>
+
+<div id="sec-history" class="section">
+<div class="metric-row">
+<div class="metric-card"><div class="meta"><div class="label">Selected day</div><div class="value" id="metric-day">-</div></div><div class="metric-icon"><i class="bi bi-calendar3"></i></div></div>
+<div class="metric-card"><div class="meta"><div class="label">Logs shown</div><div class="value" id="metric-logs">0</div></div><div class="metric-icon"><i class="bi bi-journal-text"></i></div></div>
+<div class="metric-card"><div class="meta"><div class="label">Boxes added</div><div class="value" id="metric-adds">0</div></div><div class="metric-icon"><i class="bi bi-arrow-up-circle"></i></div></div>
+<div class="metric-card"><div class="meta"><div class="label">Boxes removed</div><div class="value" id="metric-removes">0</div></div><div class="metric-icon"><i class="bi bi-arrow-down-circle"></i></div></div>
+</div>
+<div class="panel mb-3">
+<div class="subtle-label mb-2"><i class="bi bi-calendar3"></i> Day filter</div>
+<div class="day-pill" id="day-selector"></div>
+</div>
+<div id="history-list"></div>
+</div>
+
+<div id="sec-users" class="section">
+<div class="metric-row">
+<div class="metric-card"><div class="meta"><div class="label">Users</div><div class="value" id="metric-users">0</div></div><div class="metric-icon"><i class="bi bi-people"></i></div></div>
+<div class="metric-card"><div class="meta"><div class="label">Active</div><div class="value" id="metric-active-users">0</div></div><div class="metric-icon"><i class="bi bi-person-check"></i></div></div>
+<div class="metric-card"><div class="meta"><div class="label">Admins</div><div class="value" id="metric-admins">0</div></div><div class="metric-icon"><i class="bi bi-shield-lock"></i></div></div>
+<div class="metric-card"><div class="meta"><div class="label">Disabled</div><div class="value" id="metric-disabled-users">0</div></div><div class="metric-icon"><i class="bi bi-person-dash"></i></div></div>
+</div>
+<div class="panel mb-3">
+<div class="user-head d-flex align-items-center justify-content-between gap-3">
+<div>
+<div class="subtle-label mb-1"><i class="bi bi-people"></i> Staff control</div>
+<h5 class="mb-0 fw-bold">Manage team access</h5>
+</div>
+<button class="btn btn-sm btn-success" onclick="openUserEditor()"><i class="bi bi-person-plus me-1"></i> Add user</button>
+</div>
+</div>
+<div id="user-list"></div>
+</div>
+
+<div id="sec-orders" class="section">
+<div class="metric-row">
+<div class="metric-card"><div class="meta"><div class="label">Total orders</div><div class="value" id="metric-orders-total">0</div></div><div class="metric-icon"><i class="bi bi-receipt"></i></div></div>
+<div class="metric-card"><div class="meta"><div class="label">Pending</div><div class="value" id="metric-orders-pending">0</div></div><div class="metric-icon"><i class="bi bi-hourglass-split"></i></div></div>
+<div class="metric-card"><div class="meta"><div class="label">Confirmed</div><div class="value" id="metric-orders-confirmed">0</div></div><div class="metric-icon"><i class="bi bi-check2-circle"></i></div></div>
+<div class="metric-card"><div class="meta"><div class="label">Manual</div><div class="value" id="metric-orders-manual">0</div></div><div class="metric-icon"><i class="bi bi-pencil-square"></i></div></div>
+</div>
+<div class="panel mb-3">
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+<div>
+<div class="subtle-label mb-1"><i class="bi bi-cart-check"></i> Demand orders</div>
+<h5 class="mb-0 fw-bold">Universal order management</h5>
+</div>
+
+<div class="d-flex align-items-center gap-2">
+  <input type="date" id="order-date-picker" class="form-control" style="width: auto; height: 42px; border-radius: 12px;">
+  <button class="btn btn-primary" onclick="renderOrders()"><i class="bi bi-search me-1"></i> Find</button>
+</div>
+
+<div class="order-bulk-bar">
+<div class="form-check form-switch m-0">
+<input class="form-check-input" type="checkbox" id="order-bulk-toggle" onchange="toggleOrderBulkMode(this.checked)">
+<label class="form-check-label small fw-bold" for="order-bulk-toggle">Bulk confirmation</label>
+</div>
+<button class="btn btn-primary d-none" id="order-bulk-btn" onclick="confirmBulkOrders()">Confirm all</button>
+<button id="create-order-btn" class="btn btn-primary hidden-soft" onclick="openOrderBuilder()">
+  <i class="bi bi-cart-plus me-1"></i> Create Order
+</button>
+</div>
+</div>
+</div>
+<div id="orders-list"></div>
+</div>
+</div>
+</div>
+
+<nav class="nav-bottom d-none" id="bottom-nav">
+<button class="nav-item active" onclick="switchTab('stock', this)"><i class="bi bi-box-seam"></i><span>Inventory</span></button>
+<button class="nav-item admin-only" onclick="switchTab('history', this)"><i class="bi bi-journal-text"></i><span>Logs</span></button>
+<button class="nav-item admin-only" onclick="switchTab('users', this)"><i class="bi bi-people"></i><span>Staff</span></button>
+<button class="nav-item admin-only" onclick="switchTab('orders', this)"><i class="bi bi-cart-check"></i><span>Orders</span></button>
+<button class="nav-item admin-only" onclick="switchTab('customer-orders', this)">
+  <i class="bi bi-bag-check"></i><span>Customer Orders</span>
+</button>
+</nav>
+
+<div class="modal fade" id="actionModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal-dialog modal-dialog-centered modal-sm">
+<div class="modal-content border-0 shadow" >
+<div class="modal-body text-center">
+<div class="brand-mark mx-auto mb-3" style="width:54px;height:54px; border-radius: 16px; font-size:1.1rem;"><i class="bi bi-box-seam"></i></div>
+<h5 id="modal-title" class="mb-1 fw-bold"></h5>
+<p id="modal-item" class="text-muted small mb-2"></p>
+<p class="small text-muted mb-3">Quantity is optional. You can save only a note.</p>
+<input type="number" id="modal-qty" class="form-control form-control-lg text-center mb-2" placeholder="Boxes (optional)">
+<input type="text" id="modal-notes" class="form-control form-control-sm text-center mb-3" placeholder="Notes (optional)">
+<button id="modal-btn" class="btn btn-lg w-100 text-white" onclick="submitAction()">Confirm</button>
+</div>
+</div>
+</div>
+</div>
+
+
+
+<div class="modal fade" id="userModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content p-0">
+<div class="modal-body p-4">
+<div class="d-flex align-items-center justify-content-between mb-3">
+<h5 id="u-modal-title" class="mb-0 fw-bold">Edit User</h5>
+<span class="mini-pill"><i class="bi bi-pencil-square"></i> Editable</span>
+</div>
+<input type="hidden" id="u-old-name">
+<input type="text" id="u-name" class="form-control mb-2" placeholder="Username">
+<input type="text" id="u-pass" class="form-control mb-2" placeholder="Password">
+<select id="u-role" class="form-select mb-2">
+<option value="user">User</option>
+<option value="admin">Admin</option>
+</select>
+<select id="u-status" class="form-select mb-3">
+<option value="active">Active</option>
+<option value="disabled">Disabled</option>
+</select>
+<button class="btn btn-primary w-100" onclick="submitUser()"><i class="bi bi-check2-circle me-1"></i> Save user</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="modal fade" id="orderModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h5 class="fw-bold">Create Order</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- ✅ CUSTOMER SELECT -->
+        <div class="row g-2 mb-3">
+          <div class="col-md-8">
+            <label class="form-label fw-bold">Customer</label>
+            <select id="order-customer" class="form-select"></select>
+          </div>
+
+          <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-primary w-100" onclick="openCustomerModal()">
+              + Add Customer
+            </button>
+          </div>
+        </div>
+
+        <!-- ✅ SUPPLIER -->
+        <div class="row g-2 mb-3">
+          <div class="col-md-6">
+            <input id="order-supplier" class="form-control" placeholder="Supplier">
+          </div>
+        </div>
+
+        <!-- ✅ ITEMS TABLE -->
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Note</th>
+              </tr>
+            </thead>
+            <tbody id="order-builder-body"></tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-success" onclick="completeUniversalOrder()">Create Order</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="pdfChoiceModal" tabindex="-1">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content border-0 shadow-lg p-4">
+<h5 class="mb-2">Download PDF</h5>
+<p class="text-muted small mb-3">Select the type of PDF you want</p>
+<div class="pdf-choice-box">
+<button class="pdf-choice-btn internal" onclick="selectPDFType('internal')">
+<i class="bi bi-file-earmark-text"></i><br>Internal
+</button>
+<button class="pdf-choice-btn external" onclick="selectPDFType('external')">
+<i class="bi bi-file-earmark-pdf"></i><br>External
+</button>
+</div>
+</div>
+</div>
+</div>
+
+
+<audio id="newOrderSound" preload="auto">
+  <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+</audio>
+
+
+
+
+
+<div id="sec-customer-orders" class="section">
+  <div class="metric-row">
+    <div class="metric-card">
+      <div class="meta">
+        <div class="label">Today</div>
+        <div class="value" id="metric-cust-today">0</div>
+      </div>
+      <div class="metric-icon"><i class="bi bi-bag-check"></i></div>
+    </div>
+    <div class="metric-card">
+      <div class="meta">
+        <div class="label">Pending</div>
+        <div class="value" id="metric-cust-pending">0</div>
+      </div>
+      <div class="metric-icon"><i class="bi bi-hourglass-split"></i></div>
+    </div>
+    <div class="metric-card">
+      <div class="meta">
+        <div class="label">In progress</div>
+        <div class="value" id="metric-cust-progress">0</div>
+      </div>
+      <div class="metric-icon"><i class="bi bi-arrow-repeat"></i></div>
+    </div>
+    <div class="metric-card">
+      <div class="meta">
+        <div class="label">Completed</div>
+        <div class="value" id="metric-cust-done">0</div>
+      </div>
+      <div class="metric-icon"><i class="bi bi-check2-circle"></i></div>
+    </div>
+  </div>
+
+  <div class="panel mb-3">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+      <div>
+        <div class="subtle-label mb-1"><i class="bi bi-bag-check"></i> Customer orders</div>
+        <h5 class="mb-0 fw-bold">Live today orders</h5>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <button id="create-customer-order-btn" class="btn btn-primary hidden-soft" onclick="openCustomerOrderModal()">
+          <i class="bi bi-plus-circle me-1"></i> Create Order
+        </button>
+      </div>
+    </div>
+
+    <div class="d-flex align-items-end gap-2 flex-wrap">
+      <div class="flex-grow-1">
+        <div class="small fw-bold mb-1">Search today orders</div>
+        <input type="text" id="customer-order-search" class="form-control" placeholder="Search customer, order id, item, status..." oninput="renderCustomerOrders()">
+      </div>
+      <div class="flex-grow-1">
+        <div class="small fw-bold mb-1">Date for history</div>
+        <input type="date" id="cust-history-date" class="form-control">
+      </div>
+      <div>
+        <button class="btn btn-outline-primary" onclick="loadCustomerOrderHistory()">
+          <i class="bi bi-search me-1"></i> Load History
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="customer-live-list"></div>
+
+  <div id="customer-history-wrap" class="d-none mt-4">
+    <div class="panel mb-3">
+      <div class="subtle-label mb-2"><i class="bi bi-clock-history"></i> Order history</div>
+      <div class="small text-muted">This loads only after you choose a date.</div>
+    </div>
+    <div id="customer-history-list"></div>
+  </div>
+</div>
+<div class="modal fade" id="customerOrderModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title fw-bold mb-1">Create Customer Order</h5>
+          <div class="text-muted small">Add customer details, items, and notes. Order will be stored live.</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row g-2 mb-3">
+          <div class="col-md-3">
+            <input type="text" id="cust-name" class="form-control" placeholder="Customer name">
+          </div>
+          <div class="col-md-3">
+            <input type="text" id="cust-phone" class="form-control" placeholder="Customer phone">
+          </div>
+          <div class="col-md-3">
+            <input type="email" id="cust-email" class="form-control" placeholder="Customer email">
+          </div>
+          <div class="col-md-3">
+            <input type="text" id="cust-location" class="form-control" placeholder="Location / address">
+          </div>
+        </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-md-4">
+            <input type="text" id="cust-order-notes" class="form-control" placeholder="Order notes">
+          </div>
+          <div class="col-md-4">
+            <select id="cust-order-status" class="form-select">
+              <option value="new">New</option>
+              <option value="accepted">Accepted</option>
+              <option value="in_progress">In progress</option>
+              <option value="ready">Ready</option>
+              <option value="completed">Completed</option>
+              <option value="delivered">Delivered</option>
+              <option value="collected">Collected</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <button class="btn btn-outline-primary w-100" onclick="addCustomerOrderItemRow()">
+              <i class="bi bi-plus-circle me-1"></i> Add item row
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th style="width:120px;">Qty</th>
+                <th style="width:140px;">Price</th>
+                <th style="width:180px;">Notes</th>
+                <th style="width:70px;"></th>
+              </tr>
+            </thead>
+            <tbody id="cust-order-items-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary" onclick="submitCustomerOrder()">Save order</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="customerModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body p-3">
+
+        <h5>Add Customer</h5>
+
+        <input id="customer-name" class="form-control mb-2" placeholder="Name">
+        <input id="customer-phone" class="form-control mb-2" placeholder="Phone">
+        <input id="customer-email" class="form-control mb-2" placeholder="Email">
+        <input id="customer-location" class="form-control mb-2" placeholder="Location">
+
+        <button class="btn btn-primary w-100" onclick="saveCustomerFromModal()">
+          Save Customer
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="itemModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body p-4">
+        <h5 class="fw-bold mb-3">Add Inventory Item</h5>
+        <input type="text" id="new-item-name" class="form-control mb-2" placeholder="Item name">
+        <input type="text" id="new-item-category" class="form-control mb-2" placeholder="Category">
+        <div class="row g-2">
+          <div class="col-6">
+            <input type="number" id="new-item-qty" class="form-control mb-2" placeholder="Quantity">
+          </div>
+          <div class="col-6">
+            <select id="new-item-unit" class="form-select mb-2">
+              <option value="grams">Grams</option>
+              <option value="kg">Kg</option>
+              <option value="box" selected>Box</option>
+            </select>
+          </div>
+        </div>
+        <input type="number" id="new-item-low" class="form-control mb-2" placeholder="Low stock threshold" value="5">
+        <input type="text" id="new-item-note" class="form-control mb-3" placeholder="Note">
+        <button class="btn btn-primary w-100" onclick="saveNewItem()">Save Item</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const COMPANY_NAME = 'SWA Meat and Fish Market';
+const PHONE = '+44 7852 333142';
+const LOCATION = '13 east st, IG11 8ER, Barking, UK';
+let selectedOrderForPDF = null;
+const pdfModal = new bootstrap.Modal(document.getElementById('pdfChoiceModal'));
+
+function openPDFSelector(orderId) { selectedOrderForPDF = orderId; pdfModal.show(); }
+function selectPDFType (type) {
+  pdfModal.hide();
+  if (!selectedOrderForPDF) return;
+  if (type === 'internal') generateInternalOrderPDF(selectedOrderForPDF);
+  else generateOrderPDF(selectedOrderForPDF);
+}
+
+let rawItems = [], rawHistory = [], rawUsers = [], rawOrders = [];
+let currentUser = '', userRole = '', currentDay = '', activeTab = 'stock', activeAction = {};
+let bulkStockMode = false, bulkOrderMode = false;
+let stockDrafts = {}, orderDrafts = {};
+let selectedOrderLines = {};
+
+
+
+
+const customerOrderModal = new bootstrap.Modal(document.getElementById('customerOrderModal'));
+let rawCustomerTodayOrders = [];
+let rawCustomerHistoryOrders = [];
+let customerOrderPollTimer = null;
+let lastCustomerOrderIds = new Set();
+let customerOrderRowCount = 0;
+
+function isSuperAdmin() {
+  const r = String(userRole || '').toLowerCase().trim();
+  return r === 'super admin' || r === 'superadmin';
+}
+
+function canCreateCustomerOrder() {
+  const r = String(userRole || '').toLowerCase().trim();
+  return r === 'admin' || r === 'super admin' || r === 'superadmin';
+}
+
+function normalizeCustomerOrder(raw) {
+  if (!raw) return null;
+
+  if (!Array.isArray(raw) && typeof raw === 'object') {
+    return raw;
+  }
+
+  const row = raw;
+
+  return {
+    orderId: String(row[0] || ''),
+    customerId: String(row[1] || ''),
+    customerName: String(row[2] || ''),
+    customerEmail: String(row[3] || ''),
+    createdAt: String(row[4] || ''),
+    createdBy: String(row[5] || ''),
+    status: String(row[6] || 'new'),
+    itemsJSON: String(row[7] || '[]'),
+    total: String(row[8] || '0'),
+    acceptedJSON: String(row[9] || ''),
+    completedJSON: String(row[10] || ''),
+    timelineJSON: String(row[11] || '[]'),
+    notes: String(row[12] || '')
+  };
+}
+
+function safeJsonParse(text, fallback) {
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function fmtActor(jsonText) {
+  const obj = safeJsonParse(jsonText || '', null);
+  if (!obj) return '-';
+  const name = obj.name || '-';
+  const time = obj.time ? new Date(obj.time).toLocaleString() : '-';
+  return `${name} @ ${time}`;
+}
+
+function fmtTimeline(timelineText) {
+  const arr = safeJsonParse(timelineText || '[]', []);
+  if (!Array.isArray(arr) || !arr.length) {
+    return '<div class="small text-muted">No timeline yet.</div>';
+  }
+
+  return arr.map(t => {
+    const when = t.time ? new Date(t.time).toLocaleString() : '-';
+    return `
+      <div class="history-entry">
+        <div class="history-entry-top">
+          <div>
+            <div class="fw-bold">${escapeHtml(t.action || '-')}</div>
+            <div class="history-entry-time">${escapeHtml(t.by || '-')} • ${escapeHtml(when)}</div>
+          </div>
+        </div>
+        ${t.note ? `<div class="history-note mt-2">${escapeHtml(t.note)}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function updateCustomerOrderMetrics(list) {
+  const items = list || [];
+  const set = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.innerText = value;
+  };
+
+  set('metric-cust-today', items.length);
+  set('metric-cust-pending', items.filter(o => String(o.status).toLowerCase() === 'new').length);
+  set('metric-cust-progress', items.filter(o => ['accepted', 'in_progress', 'ready'].includes(String(o.status).toLowerCase())).length);
+  set('metric-cust-done', items.filter(o => ['completed', 'delivered', 'collected'].includes(String(o.status).toLowerCase())).length);
+}
+
+function showCustomerOrderCreateButton() {
+  const btn = document.getElementById('create-customer-order-btn');
+  if (btn) btn.classList.toggle('hidden-soft', !canCreateCustomerOrder());
+}
+
+function startCustomerOrderPolling() {
+  stopCustomerOrderPolling();
+  customerOrderPollTimer = setInterval(() => {
+    if (activeTab === 'customer-orders') {
+      loadTodayCustomerOrders(true);
+    }
+  }, 8000);
+}
+
+function stopCustomerOrderPolling() {
+  if (customerOrderPollTimer) {
+    clearInterval(customerOrderPollTimer);
+    customerOrderPollTimer = null;
+  }
+}
+
+function loadTodayCustomerOrders(silent = false) {
+  google.script.run
+    .withSuccessHandler(res => {
+      const list = Array.isArray(res) ? res : (res && res.orders ? res.orders : []);
+      const normalized = list.map(normalizeCustomerOrder).filter(Boolean);
+
+      const newIds = new Set(normalized.map(o => String(o.orderId || '')));
+      const hasNewOrder = [...newIds].some(id => !lastCustomerOrderIds.has(id));
+
+      rawCustomerTodayOrders = normalized;
+      lastCustomerOrderIds = newIds;
+
+      if (hasNewOrder && !silent) {
+        try {
+          const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+          audio.play().catch(() => {});
+        } catch (e) {}
+      }
+
+      renderCustomerOrders();
+      updateCustomerOrderMetrics(rawCustomerTodayOrders);
+    })
+    .withFailureHandler(err => {
+      if (!silent) notify(err && err.message ? err.message : 'Could not load customer orders', 'error');
+    })
+    .getTodayCustomerOrders();
+}
+
+function loadCustomerOrderHistory() {
+  if (!isSuperAdmin()) {
+    notify('History is only for super admin', 'warning');
+    return;
+  }
+
+  const dateVal = document.getElementById('cust-history-date').value;
+  if (!dateVal) {
+    notify('Choose a date first', 'warning');
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(res => {
+      const list = Array.isArray(res) ? res : (res && res.orders ? res.orders : []);
+      rawCustomerHistoryOrders = list.map(normalizeCustomerOrder).filter(Boolean);
+      document.getElementById('customer-history-wrap').classList.remove('d-none');
+      renderCustomerHistory();
+      notify('History loaded', 'success');
+    })
+    .withFailureHandler(err => {
+      notify(err && err.message ? err.message : 'Could not load history', 'error');
+    })
+    .getCustomerOrdersByDate(dateVal);
+}
+
+function renderCustomerOrders() {
+  const q = String(document.getElementById('customer-order-search')?.value || '').toLowerCase();
+  const list = rawCustomerTodayOrders || [];
+
+  const filtered = list.filter(o => {
+    const text = [
+      o.orderId,
+      o.customerName,
+      o.customerEmail,
+      o.status,
+      o.notes,
+      o.createdBy
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    const items = safeJsonParse(o.itemsJSON || '[]', []);
+    const itemText = Array.isArray(items)
+      ? items.map(x => `${x.itemName || ''} ${x.qty || ''}`).join(' ').toLowerCase()
+      : '';
+
+    return text.includes(q) || itemText.includes(q);
+  });
+
+  const container = document.getElementById('customer-live-list');
+  if (!container) return;
+
+  if (!filtered.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="bi bi-bag-x"></i>
+        <h6>No customer orders found</h6>
+        <p>Live orders will appear here automatically.</p>
+      </div>`;
+    updateCustomerOrderMetrics(filtered);
+    return;
+  }
+
+  container.innerHTML = filtered.map(o => renderCustomerOrderCard(o)).join('');
+  updateCustomerOrderMetrics(filtered);
+}
+
+function renderCustomerHistory() {
+  const list = rawCustomerHistoryOrders || [];
+  const container = document.getElementById('customer-history-list');
+  if (!container) return;
+
+  if (!list.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="bi bi-clock-history"></i>
+        <h6>No history for selected date</h6>
+        <p>Choose another day and load again.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = list.map(o => renderCustomerOrderCard(o, true)).join('');
+}
+
+function renderCustomerOrderCard(o, isHistory = false) {
+  const items = safeJsonParse(o.itemsJSON || '[]', []);
+  const timeline = o.timelineJSON || '[]';
+  const status = String(o.status || 'new').toLowerCase();
+
+  const statusClass =
+    status === 'completed' || status === 'delivered' || status === 'collected'
+      ? 'bg-success'
+      : status === 'ready'
+      ? 'bg-primary'
+      : status === 'accepted' || status === 'in_progress'
+      ? 'bg-warning text-dark'
+      : status === 'cancelled'
+      ? 'bg-danger'
+      : 'bg-secondary';
+
+  return `
+    <div class="history-group mb-3">
+      <button class="history-group-btn" type="button" data-bs-toggle="collapse" data-bs-target="#cust-${safeId(o.orderId)}" aria-expanded="false">
+        <div class="history-group-main">
+          <div class="history-group-icon"><i class="bi bi-bag-check"></i></div>
+          <div>
+            <p class="history-group-title">${escapeHtml(o.orderId || '-')} - ${escapeHtml(o.customerName || '-')}</p>
+            <div class="history-group-sub">
+              ${escapeHtml(o.customerPhone || '')}
+              ${o.customerEmail ? ' • ' + escapeHtml(o.customerEmail) : ''}
+            </div>
+          </div>
+        </div>
+        <div class="history-group-meta">
+          <span class="badge ${statusClass}">${escapeHtml(status)}</span>
+          <div class="small text-muted mt-2">${escapeHtml(o.createdAt || '-')}</div>
+        </div>
+      </button>
+
+      <div class="collapse" id="cust-${safeId(o.orderId)}">
+        <div class="history-inner">
+          <div class="row g-2 mb-3">
+            <div class="col-md-4"><strong>Created by:</strong> ${escapeHtml(fmtActor(o.createdByJSON || JSON.stringify({ name: o.createdBy || '-', time: o.createdAt || '' })))}</div>
+            <div class="col-md-4"><strong>Accepted by:</strong> ${escapeHtml(fmtActor(o.acceptedJSON || ''))}</div>
+            <div class="col-md-4"><strong>Completed by:</strong> ${escapeHtml(fmtActor(o.completedJSON || ''))}</div>
+          </div>
+
+          <div class="mb-3">
+            <div class="small fw-bold mb-2">Items</div>
+            <div class="d-flex flex-wrap gap-2">
+              ${(Array.isArray(items) ? items : []).map(it => `
+                <span class="mini-pill">${escapeHtml(it.itemName || 'Item')} × ${escapeHtml(String(it.qty || 0))}</span>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="small fw-bold mb-2">Timeline</div>
+            ${fmtTimeline(timeline)}
+          </div>
+
+          <div class="d-flex flex-wrap gap-2">
+            ${renderCustomerStatusButtons(o, isHistory)}
+            ${canCreateCustomerOrder() ? `<button class="btn btn-outline-primary btn-sm" onclick='openAddItemsToOrder("${escapeHtml(o.orderId)}")'><i class="bi bi-plus-circle me-1"></i> Add items</button>` : ''}
+          </div>
+
+          ${o.notes ? `<div class="history-note mt-3">${escapeHtml(o.notes)}</div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+
+
+
+
+
+
+
+function renderCustomerStatusButtons(o, isHistory = false) {
+  const status = String(o.status || 'new').toLowerCase();
+  const orderId = String(o.orderId || '');
+  const current = escapeHtml(status);
+
+  const buttons = [
+    ['new', 'Secondary'],
+    ['accepted', 'Warning'],
+    ['in_progress', 'Primary'],
+    ['ready', 'Info'],
+    ['completed', 'Success'],
+    ['delivered', 'Success'],
+    ['collected', 'Success'],
+    ['cancelled', 'Danger']
+  ];
+
+  return buttons.map(([key, cls]) => `
+    <button class="btn btn-outline-${cls.toLowerCase()} btn-sm ${current === key ? 'active' : ''}"
+      onclick='updateCustomerOrderStatusUi("${escapeHtml(orderId)}","${key}")'>
+      ${key.replace('_', ' ')}
+    </button>
+  `).join('');
+}
+
+function updateCustomerOrderStatusUi(orderId, status) {
+  if (!orderId || !status) return;
+
+  showStatus('Updating customer order');
+  google.script.run
+    .withSuccessHandler(() => {
+      hideStatus();
+      notify('Customer order updated', 'success');
+      loadTodayCustomerOrders(true);
+      if (document.getElementById('customer-history-wrap') && !document.getElementById('customer-history-wrap').classList.contains('d-none')) {
+        loadCustomerOrderHistory();
+      }
+    })
+    .withFailureHandler(err => {
+      hideStatus();
+      notify(err && err.message ? err.message : 'Could not update status', 'error');
+    })
+    .updateCustomerOrderStatus(orderId, status, currentUser);
+}
+
+function openCustomerOrderModal() {
+  if (!canCreateCustomerOrder()) {
+    notify('You are not allowed to create customer orders', 'warning');
+    return;
+  }
+
+  document.getElementById('cust-name').value = '';
+  document.getElementById('cust-phone').value = '';
+  document.getElementById('cust-email').value = '';
+  document.getElementById('cust-location').value = '';
+  document.getElementById('cust-order-notes').value = '';
+  document.getElementById('cust-order-status').value = 'new';
+  document.getElementById('cust-order-items-body').innerHTML = '';
+  customerOrderRowCount = 0;
+  addCustomerOrderItemRow();
+  customerOrderModal.show();
+}
+
+function addCustomerOrderItemRow(prefill = {}) {
+  customerOrderRowCount += 1;
+  const key = `cust-row-${customerOrderRowCount}`;
+
+  const tr = document.createElement('tr');
+  tr.id = key;
+  tr.innerHTML = `
+    <td><input type="text" class="form-control form-control-sm cust-item-name" placeholder="Item name" value="${escapeHtml(prefill.itemName || '')}"></td>
+    <td><input type="number" min="0" class="form-control form-control-sm cust-item-qty" placeholder="Qty" value="${escapeHtml(prefill.qty || '')}"></td>
+    <td><input type="number" min="0" step="0.01" class="form-control form-control-sm cust-item-price" placeholder="Price" value="${escapeHtml(prefill.price || '')}"></td>
+    <td><input type="text" class="form-control form-control-sm cust-item-note" placeholder="Note" value="${escapeHtml(prefill.note || '')}"></td>
+    <td><button class="btn btn-sm btn-outline-danger" type="button" onclick="document.getElementById('${key}').remove()"><i class="bi bi-trash"></i></button></td>
+  `;
+  document.getElementById('cust-order-items-body').appendChild(tr);
+}
+
+function openAddItemsToOrder(orderId) {
+  notify('Add-items mode can be wired to a dedicated modal next. The backend is ready.', 'info');
+}
+
+function submitCustomerOrder() {
+  const customerName = document.getElementById('cust-name').value.trim();
+  const customerPhone = document.getElementById('cust-phone').value.trim();
+  const customerEmail = document.getElementById('cust-email').value.trim();
+  const customerLocation = document.getElementById('cust-location').value.trim();
+  const notes = document.getElementById('cust-order-notes').value.trim();
+  const status = document.getElementById('cust-order-status').value;
+
+  if (!customerName) {
+    notify('Customer name is required', 'warning');
+    return;
+  }
+
+  const rows = [...document.querySelectorAll('#cust-order-items-body tr')];
+  const items = rows.map(row => {
+    return {
+      itemName: row.querySelector('.cust-item-name')?.value.trim() || '',
+      qty: Number(row.querySelector('.cust-item-qty')?.value || 0),
+      price: Number(row.querySelector('.cust-item-price')?.value || 0),
+      note: row.querySelector('.cust-item-note')?.value.trim() || ''
+    };
+  }).filter(x => x.itemName && x.qty > 0);
+
+  if (!items.length) {
+    notify('Add at least one item', 'warning');
+    return;
+  }
+
+  const payload = {
+    customerName,
+    customerPhone,
+    customerEmail,
+    customerLocation,
+    notes,
+    status,
+    items
+  };
+
+  customerOrderModal.hide();
+  showStatus('Creating customer order');
+  google.script.run
+    .withSuccessHandler(() => {
+      hideStatus();
+      notify('Customer order created', 'success');
+      loadTodayCustomerOrders(true);
+    })
+    .withFailureHandler(err => {
+      hideStatus();
+      notify(err && err.message ? err.message : 'Could not create customer order', 'error');
+    })
+    .createCustomerOrder(payload, currentUser);
+}
+
+
+
+
+
+
+const modals = {
+  action: new bootstrap.Modal(document.getElementById('actionModal'), {
+    backdrop: 'static',
+    keyboard: false
+  }),
+  user: new bootstrap.Modal(document.getElementById('userModal'), {
+    backdrop: 'static',
+    keyboard: false
+  }),
+  order: new bootstrap.Modal(document.getElementById('orderModal'), {
+    backdrop: 'static',
+    keyboard: false
+  })
+};
+
+const customerModal = new bootstrap.Modal(document.getElementById('customerModal'), {
+  backdrop: 'static',
+  keyboard: false
+});
+
+const itemModal = new bootstrap.Modal(document.getElementById('itemModal'), {
+  backdrop: true,   // allow outside click
+  keyboard: true    // allow ESC
+});
+const toastStack = document.getElementById('status-toast');
+let loadingToastEl = null;
+let loginBusy = false;
+
+function escapeHtml (str) {
+  return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function safeId(str) {
+  return String(str ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g,'');
+}
+
+function parseChangeValue (change) {
+  const n = Number(String(change || '0').replace(/[^0-9-]/g,''));
+  return Number.isFinite(n) ? n: 0;
+}
+
+function createToast (type, title, text = '', timeout = 2400) {
+  const toast = document.createElement('div');
+  toast.className = `app-toast ${type}`;
+  const iconMap = {
+    success: 'bi-check2-circle',
+    error: 'bi-exclamation-triangle-fill',
+    warning: 'bi-exclamation-circle-fill',
+    info: 'bi-info-circle-fill'
+  };
+  toast.innerHTML = `
+  <div class="app-toast-icon"><i class="bi ${iconMap[type] || iconMap.info}"></i></div>
+  <div class="app-toast-body">
+  <p class="app-toast-title">${escapeHtml(title)}</p>
+  ${text ? `<p class="app-toast-text">${escapeHtml(text)}</p>` : ''}
+  </div>
+  <button class="app-toast-close" type="button" aria-label="Close"><i class="bi bi-x-lg"></i></button>`;
+  toast.querySelector('.app-toast-close').onclick = () => dismissToast(toast);
+  toastStack.appendChild(toast);
+  if (timeout > 0) setTimeout(() => dismissToast(toast), timeout);
+  return toast;
+}
+
+function dismissToast(toast) {
+  if (!toast || !toast.isConnected) return;
+  toast.classList.add('hide-toast');
+  setTimeout(() => { if (toast.isConnected) toast.remove(); }, 220);
+}
+
+function showStatus (msg) {
+  hideStatus();
+  loadingToastEl = document.createElement('div');
+  loadingToastEl.className = 'app-toast info';
+  loadingToastEl.innerHTML = `
+  <div class="app-toast-icon"><span class="spinner-border spinner-border-sm text-light" aria-hidden="true"></span></div>
+  <div class="app-toast-body">
+  <p class="app-toast-title">${escapeHtml (msg)}</p>
+  <p class="app-toast-text">Please wait</p>
+  </div>`;
+  toastStack.appendChild(loadingToastEl);
+}
+
+function hideStatus() { if (loadingToastEl && loadingToastEl.isConnected) dismissToast (loadingToastEl); loadingToastEl = null; }
+function notify (msg, type = 'info', timeout = 2400) { createToast (type, msg, '', timeout); }
+
+function showTabLoader (title = 'Loading', subtitle = 'Please wait') {
+  document.getElementById('tab-loader-title').innerText = title;
+  document.getElementById('tab-loader-subtitle').innerText = subtitle;
+  document.getElementById('tab-loader').classList.remove('d-none');
+  requestAnimationFrame(() => document.getElementById('tab-loader').classList.add('show'));
+}
+
+function hideTabLoader() {
+  const loader = document.getElementById('tab-loader');
+  loader.classList.remove('show');
+  setTimeout(() => loader.classList.add('d-none'), 180);
+}
+
+function setLoginLoading (isLoading) {
+  if (loginBusy === isLoading) return;
+  loginBusy = isLoading;
+  const btn = document.getElementById('login-btn');
+  const user = document.getElementById('user');
+  const pass = document.getElementById('pass');
+  if (isLoading) {
+    btn.dataset.label = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Logging in';
+    user.disabled = true;
+    pass.disabled = true;
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = btn.dataset.label || '<span class="btn-label">Sign In</span>';
+    user.disabled = false;
+    pass.disabled = false;
+  }
+}
+
+function applyRoleVisibility(role) {
+  const r = String(role).toLowerCase().trim();
+  const isAdmin = r === 'admin' || r === 'super admin' || r === 'superadmin';
+  const isSuperAdmin = r === 'super admin' || r === 'superadmin';
+
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.classList.toggle('hidden-soft', !isAdmin);
+  });
+
+  const createCustomerBtn = document.getElementById('create-customer-order-btn');
+  if (createCustomerBtn) {
+    createCustomerBtn.classList.toggle('hidden-soft', !isAdmin);
+  }
+
+  const historyWrap = document.getElementById('customer-history-wrap');
+  if (historyWrap) {
+    historyWrap.classList.toggle('hidden-soft', !isSuperAdmin);
+    if (!isSuperAdmin) historyWrap.classList.add('d-none');
+  }
+}
+
+function saveSession(username, role) { 
+  localStorage.setItem('stockpro_session_user', username);
+  localStorage.setItem('stockpro_session_role', role); 
+}
+
+function clearSession() { 
+  localStorage.removeItem('stockpro_session_user');
+  localStorage.removeItem('stockpro_session_role'); 
+}
+
+function toggleStockBulkMode (on) {
+  bulkStockMode = !!on;
+  const btn = document.getElementById('stock-bulk-save-btn');
+  if (btn) btn.classList.toggle('d-none', !bulkStockMode);
+  renderStock();
+}
+
+function toggleOrderBulkMode (on) {
+  bulkOrderMode = !!on;
+  const btn = document.getElementById('order-bulk-btn');
+  if (btn) btn.classList.toggle('d-none', !bulkOrderMode);
+  if (!bulkOrderMode) selectedOrderLines = {};
+  renderOrders();
+}
+
+function cacheStockDraft(itemId) {
+  const key = safeId(itemId);
+  const opEl = document.getElementById(`s-op-${key}`);
+  const qtyEl = document.getElementById(`s-qty-${key}`);
+  const noteEl = document.getElementById(`s-note-${key}`);
+  stockDrafts[itemId] = { 
+    op: opEl ? opEl.value : 'add',
+    qty: qtyEl ? qtyEl.value : '', 
+    note: noteEl ? noteEl.value : '' 
+  };
+}
+
+function cacheOrderDraft (orderId, itemId) {
+  const key = safeId(`${orderId}-${itemId}`);
+  const qtyEl = document.getElementById(`rc-${key}`);
+  const noteEl = document.getElementById(`note-${key}`);
+  orderDrafts[key] = { 
+    receivedQty: qtyEl ? qtyEl.value : '', 
+    note: noteEl ? noteEl.value : '' 
+  };
+}
+
+function toggleOrderSelection (orderId, itemId, checked) {
+  const key = safeId(`${orderId}-${itemId}`);
+  if (checked) selectedOrderLines[key] = true;
+  else delete selectedOrderLines[key];
+}
+
+function renderBulkStockInputs (item) {
+  const key = safeId(item.itemId);
+  const d = stockDrafts[item.itemId] || {};
+  return `
+  <div class="row g-2 mt-3">
+  <div class="col-4">
+  <select class="form-select form-select-sm" id="s-op-${key}" onchange="cacheStockDraft('${item.itemId}')">
+  <option value="add" ${d.op === 'remove' ? '' : 'selected'}>Add</option>
+  <option value="remove" ${d.op === 'remove' ? 'selected' : ''}>Remove</option>
+  </select>
+  </div>
+  <div class="col-4">
+  <input type="number" min="0" class="form-control form-control-sm" id="s-qty-${key}" value="${d.qty || ''}" placeholder="Qty" oninput="cacheStockDraft('${item.itemId}')">
+  </div>
+  <div class="col-4">
+  <input type="text" class="form-control form-control-sm" id="s-note-${key}" value="${escapeHtml (d.note || '')}" placeholder="Note" oninput="cacheStockDraft('${item.itemId}')">
+  </div>
+  </div>`;
+}
+
+function saveBulkStockUpdates() {
+  const updates = Object.entries (stockDrafts).map(([itemId, d]) => {
+    const qty = Number (d.qty || 0);
+    const note = String(d.note || '').trim();
+    if (!qty && !note) return null;
+    return { itemId, changeQty: d.op === 'remove' ? -qty : qty, notes: note };
+  }).filter(Boolean);
+
+  if (!updates.length) { notify('Add at least one bulk stock change', 'warning'); return; }
+  showStatus ('Saving bulk stock changes');
+  google.script.run
+  .withSuccessHandler(() => { 
+    hideStatus(); notify('Bulk stock update saved', 'success'); stockDrafts = {}; loadDataForCurrentTab(); 
+  })
+  .withFailureHandler(err => { 
+    hideStatus(); notify(err && err.message ? err.message : 'Could not save bulk stock changes', 'error'); 
+  })
+  .bulkUpdateStockActions (updates, currentUser);
+}
+
+function confirmBulkOrders() {
+  const pendingLines = (rawOrders || []).filter(o => o.status === 'pending');
+  const lines = pendingLines
+  .filter(o => selectedOrderLines[safeId(`${o.orderId}-${o.itemId}`)])
+  .map(o => {
+    const key = safeId(`${o.orderId}-${o.itemId}`);
+    const qtyEl = document.getElementById(`rc-${key}`);
+    const noteEl = document.getElementById(`note-${key}`);
+    const draft = orderDrafts[key] || {};
+    const receivedQty = draft.receivedQty ?? (qtyEl ? qtyEl.value: '');
+    const note = draft.note ?? (noteEl ? noteEl.value : '');
+    return { orderId: o.orderId, itemId: o.itemId, receivedQty: String(receivedQty || '').trim(), note: String(note || '').trim() };
+  });
+
+  if (!lines.length) { notify('Select at least one pending order line', 'warning'); return; }
+  showStatus('Confirming selected orders');
+  google.script.run
+  .withSuccessHandler(() => { 
+    hideStatus();
+    notify('Selected orders confirmed', 'success'); orderDrafts = {}; selectedOrderLines = {}; loadDataForCurrentTab();
+  })
+  .withFailureHandler(err => { 
+    hideStatus(); notify (err && err.message ? err.message : 'Could not confirm selected orders', 'error'); 
+  })
+  .bulkConfirmOrderLines(lines, currentUser);
+}
+
+function restoreSession() {
+  const savedUser = localStorage.getItem('stockpro_session_user');
+  if (!savedUser) return;
+  showStatus ('Restoring session');
+  google.script.run
+  .withSuccessHandler(res => {
+    hideStatus();
+    if (res && res.found && res.active) {
+      currentUser = res.username;
+      userRole = res.role || '';
+      document.getElementById('current-user-label').innerText = currentUser;
+      document.getElementById('login-overlay').classList.add('d-none');
+      document.getElementById('main-app').classList.remove('d-none');
+      document.getElementById('bottom-nav').classList.remove('d-none');
+      applyRoleVisibility(userRole);
+      currentDay = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday','Saturday'][new Date().getDay()];
+      loadDataForCurrentTab();
+      notify('Session restored', 'success');
+    } else {
+      clearSession();
+      document.getElementById('login-err').innerText = 'Session expired or blocked';
+      notify('Session expired or blocked', 'warning');
+    }
+  })
+  .withFailureHandler(() => { hideStatus(); clearSession(); })
+  .getUserSession(savedUser);
+}
+
+function attemptLogin() {
+  const u = document.getElementById('user').value.trim();
+  const p = document.getElementById('pass').value;
+  document.getElementById('login-err').innerText = '';
+  setLoginLoading(true);
+  showStatus('Authenticating');
+  google.script.run
+  .withSuccessHandler(res => {
+    hideStatus();
+    setLoginLoading(false);
+    if (res && res.success) {
+      currentUser = res.username;
+      userRole = res.role;
+      saveSession(currentUser, userRole);
+      document.getElementById('current-user-label').innerText = currentUser;
+      document.getElementById('login-overlay').classList.add('d-none');
+      document.getElementById('main-app').classList.remove('d-none');
+      document.getElementById('bottom-nav').classList.remove('d-none');
+      applyRoleVisibility(userRole);
+      currentDay = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday','Saturday'][new Date().getDay()];
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById('sec-stock').classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelector('#bottom-nav .nav-item').classList.add('active');
+      loadDataForCurrentTab();
+      notify('Login successful', 'success');
+    } else {
+      const message = res && res.blocked ? 'You have been blocked by the admin.' : (res && res.message ? res.message : 'Invalid login');
+      document.getElementById('login-err').innerText = message;
+      notify (message, res && res.blocked ? 'warning' : 'error');
+    }
+  })
+  .withFailureHandler(err => {
+    hideStatus();
+    setLoginLoading (false);
+    const message = err && err.message ? err.message : 'Login failed';
+    document.getElementById('login-err').innerText = message;
+    notify (message, 'error');
+  })
+  .checkLogin(u, p);
+}
+
+function logout() {
+  clearSession(); currentUser = ''; userRole = '';
+  rawItems = []; rawHistory = []; rawUsers = []; rawOrders = [];
+  document.getElementById('current-user-label').innerText = '-';
+  document.getElementById('main-app').classList.add('d-none');
+  document.getElementById('bottom-nav').classList.add('d-none');
+  document.getElementById('login-overlay').classList.remove('d-none');
+  document.getElementById('user').value='';
+  document.getElementById('pass').value = '';
+  document.getElementById('login-err').innerText='';
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-stock').classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector('#bottom-nav .nav-item').classList.add('active');
+  notify('Logged out', 'info');
+}
+
+function switchTab(tabId, btnElement) {
+  activeTab = tabId;
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + tabId).classList.add('active');
+  btnElement.classList.add('active');
+
+  const searchInput = document.getElementById('global-search');
+  if (searchInput) {
+    searchInput.value = '';
+    searchInput.placeholder = `Search ${tabId}...`;
+  }
+
+  loadDataForCurrentTab();
+}
+
+function loadDataForCurrentTab() {
+  if (activeTab === 'stock') {
+    showTabLoader('Loading inventory', 'Fetching items from Sheets');
+    google.script.run
+    .withSuccessHandler(d => {
+      rawItems = (d && d.items) ? d.items : [];
+      updateCategoryDropdown();
+      updateMetrics();
+      hideTabLoader();
+    })
+    .withFailureHandler(err => { 
+      hideTabLoader();
+      notify(err && err.message ? err.message: 'Could not load inventory', 'error'); 
+    })
+    .getDashboardData();
+  } else if (activeTab === 'history') {
+    showTabLoader('Loading logs', 'Fetching activity history');
+    google.script.run
+    .withSuccessHandler(d => { 
+      rawHistory = (d && d.history) ? d.history: []; 
+      renderHistory();
+      updateMetrics(); 
+      hideTabLoader(); 
+    })
+    .withFailureHandler(err => { 
+      hideTabLoader();
+      notify(err && err.message ? err.message: 'Could not load logs', 'error'); 
+    })
+    .getHistoryData();
+  } else if (activeTab === 'customer-orders') {
+  showTabLoader('Loading customer orders', 'Fetching today orders');
+  showCustomerOrderCreateButton();
+  loadTodayCustomerOrders();
+  startCustomerOrderPolling();
+  hideTabLoader();
+} else if (activeTab === 'users') {
+    showTabLoader('Loading staff', 'Fetching user accounts');
+    google.script.run
+    .withSuccessHandler(d => { 
+      rawUsers = (d && d.users) ? d.users: []; 
+      renderUsers(); 
+      updateMetrics();
+      hideTabLoader(); 
+    })
+    .withFailureHandler(err => { 
+      hideTabLoader();
+      notify(err && err.message ? err.message : 'Could not load users', 'error'); 
+    })
+    .getUsersData();
+  }  else if (activeTab === 'orders') {
+    showTabLoader('Loading orders', 'Fetching stock and order records');
+    google.script.run
+    .withSuccessHandler(stockRes => {
+      rawItems = (stockRes && stockRes.items) ? stockRes.items : [];
+      google.script.run
+      .withSuccessHandler (orderRes => { 
+        rawOrders = (orderRes && orderRes.orders) ? orderRes.orders : [];
+        
+        // Auto-select the latest date if picker is empty
+        let datePicker = document.getElementById('order-date-picker');
+        if (datePicker && !datePicker.value && rawOrders.length > 0) {
+           let maxTime = 0;
+           let latestDateStr = '';
+           rawOrders.forEach(o => {
+             let d = new Date(o.createdAt);
+             if (!isNaN(d) && d.getTime() > maxTime) {
+                maxTime = d.getTime();
+                latestDateStr = d.toISOString().substring(0, 10);
+             }
+           });
+           if (latestDateStr) {
+             datePicker.value = latestDateStr;
+           }
+        }
+
+        renderOrders(); 
+        updateMetrics(); 
+        hideTabLoader(); 
+      })
+      .withFailureHandler(err => { 
+        hideTabLoader();
+        notify(err && err.message ? err.message: 'Could not load orders', 'error'); 
+      })
+      .getOrdersData();
+    })
+    .withFailureHandler(err => { 
+      hideTabLoader();
+      notify(err && err.message ? err.message: 'Could not load stock data', 'error'); 
+    })
+    .getDashboardData();
+  }
+}
+
+function handleSearch() { 
+  if (activeTab === 'stock') renderStock(); 
+  else if (activeTab === 'history') renderHistory(); 
+  else if (activeTab === 'users') renderUsers(); 
+  else if (activeTab === 'orders') renderOrders(); 
+}
+
+function updateMetrics() {
+  const items = rawItems || [];
+  const history = rawHistory || [];
+  const users = rawUsers || [];
+  const orders = rawOrders || [];
+  const set = (id, value) => { const el = document.getElementById(id); if (el) el.innerText = value; };
+
+  set('metric-items', items.length);
+  set('metric-qty', items.reduce((s, i) => s + (Number(i.qty) || 0), 0));
+  set('metric-low', items.filter(i => Number(i.qty) <= getLowStockThreshold(i)).length);
+  set('metric-cats', [...new Set(items.map(i => String(i.category || '').split('/')[1] || String(i.category || 'General')))].length);
+
+  set('metric-day', currentDay || '-');
+  const dayLogs = history.filter(h => h.day === currentDay);
+  const boxesAdded = dayLogs.reduce((sum, h) => sum + Math.max(0, parseChangeValue(h.change)), 0);
+  const boxesRemoved = dayLogs.reduce((sum, h) => sum + Math.abs(Math.min(0, parseChangeValue(h.change))), 0);
+  set('metric-logs', dayLogs.length);
+  set('metric-adds', boxesAdded);
+  set('metric-removes', boxesRemoved);
+
+  set('metric-users', users.length);
+  set('metric-active-users', users.filter( u => String(u.status).toLowerCase() === 'active').length);
+  set('metric-admins', users.filter( u => String(u.role).toLowerCase() === 'admin').length);
+  set('metric-disabled-users', users.filter( u => String(u.status).toLowerCase() === 'disabled').length);
+
+  set('metric-orders-total', orders.length);
+  set('metric-orders-pending', orders.filter(o => o.status === 'pending').length);
+  set('metric-orders-confirmed', orders.filter(o => o.status === 'confirmed').length);
+  set('metric-orders-manual', orders.filter(o => o.status === 'manual').length);
+}
+
+function updateCategoryDropdown () {
+  const locFilter = document.getElementById('loc-fridge').checked ? 'Fridge' : document.getElementById('loc-freezer').checked ? 'Freezer' : '';
+  const categories = [...new Set(rawItems.filter(i => !locFilter || String (i.category || '').includes (locFilter)).map(i => String(i.category || '').split('/') [1] || String(i.category || 'General')))] .sort();
+  const dropdown = document.getElementById('sub-category-filter');
+  const currentSelection = dropdown.value;
+  dropdown.innerHTML = '<option value="ALL">All Categories</option>' + categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  if (categories.includes (currentSelection)) dropdown.value = currentSelection;
+  renderStock(); 
+  updateMetrics();
+}
+
+function getVisibleStockItems() {
+  const locFilter = document.getElementById('loc-fridge').checked ? 'Fridge' : document.getElementById('loc-freezer').checked ? 'Freezer' : '';
+  const subFilter = document.getElementById('sub-category-filter').value;
+  const lowStock = document.getElementById('low-stock').checked;
+  const q = document.getElementById('global-search').value.toLowerCase();
+  
+  return rawItems.filter(i => {
+    const itemCat = String(i.category || '');
+    const itemSubCat = itemCat.split('/')[1] || itemCat || 'General';
+    const name = String(i.itemName || '');
+    const matchLoc = !locFilter || itemCat.includes(locFilter);
+    const matchSub = subFilter === 'ALL' || itemSubCat === subFilter;
+    const matchSearch = name.toLowerCase().includes(q) || itemCat.toLowerCase().includes(q);
+    const matchLow = !lowStock || Number(i.qty) <= getLowStockThreshold(i);
+    return matchLoc && matchSub && matchSearch && matchLow;
+  });
+}
+
+function renderCategoryButtons (categoryNames) {
+  const row = document.getElementById('category-jump-row');
+  if (!categoryNames.length) { row.innerHTML = ''; return; }
+  row.innerHTML = categoryNames.map(c => {
+    const id = `cat-${safeId(c)}`;
+    return `<button class="category-jump-btn" onclick="jumpToCategory('${id}')">${escapeHtml(c)}</button>`;
+  }).join('');
+}
+
+function jumpToCategory(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const yoffset = -150;
+  const y = el.getBoundingClientRect().top + window.pageYOffset + yoffset;
+  window.scrollTo({ top: y, behavior: 'smooth' });
+}
+
+function renderStock() {
+  const filtered = getVisibleStockItems();
+  const grouped = filtered.reduce((acc, i) => {
+    const sub = String(i.category || '').split('/')[1] || 'General';
+    if (!acc[sub]) acc [sub] = [];
+    acc[sub].push(i);
+    return acc;
+  }, {});
+  
+  renderCategoryButtons (Object.keys(grouped));
+  const container = document.getElementById('stock-list');
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty-state"><i class="bi bi-inbox"></i><h6>No items found</h6><p>Try changing the filter or search term.</p></div>';
+    updateMetrics();
+    return;
+  }
+  
+  container.innerHTML = '';
+  Object.keys(grouped).forEach(cat => {
+    const titleId = `cat-${safeId(cat)}`;
+    container.innerHTML += `<div class="section-title" id="${titleId}">${escapeHtml(cat)}</div>`;
+    grouped [cat].forEach(i => {
+      const actionHtml = bulkStockMode ? renderBulkStockInputs (i) : `
+      <div class="item-actions">
+      <button class="btn btn-outline-success" onclick='openAction(${JSON.stringify(i.itemId)}, ${JSON.stringify(i.itemName)}, 1)'><i class="bi bi-plus-circle me-1"></i> Add</button>
+      <button class="btn btn-outline-danger" onclick='openAction(${JSON.stringify(i.itemId)}, ${JSON.stringify(i.itemName)}, -1)'><i class="bi bi-dash-circle me-1"></i> Remove</button>
+      </div>`;
+      
+      container.innerHTML += `
+      <div class="item-card border-0">
+      <div class="item-top">
+      <div class="item-left">
+      <div class="item-icon"><i class="bi bi-box"></i></div>
+      <div>
+      <p class="item-title">${escapeHtml(i.itemName)}</p>
+      <div class="item-sub">Current: ${Number(i.qty) || 0} boxes</div>
+      ${i.updatedAt ? `<div class="item-sub">Updated at: ${escapeHtml(i.updatedAt)}</div>` : ''}
+      ${i.updatedBy ? `<div class="item-sub">Updated by: ${escapeHtml(i.updatedBy)}</div>` : ''}
+      ${i.note ? `<div class="item-note"><i class="bi bi-sticky"></i><div><strong>Note:</strong> ${escapeHtml(i.note)}</div></div>` : ''}
+      </div>
+      </div>
+      <div class="qty-display ${Number(i.qty) <= getLowStockThreshold(i) ? 'text-danger' : ''}">${Number(i.qty) || 0}</div>
+      </div>
+      ${actionHtml}
+      </div>`;
+    });
+  });
+  updateMetrics();
+}
+
+function renderHistory() {
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  document.getElementById('day-selector').innerHTML = days.map(d => `<button class="day-btn ${d === currentDay ? 'active' : ''}" onclick="currentDay='${d}'; renderHistory()">${d}</button>`).join('');
+  
+  const q = document.getElementById('global-search').value.toLowerCase();
+  const filtered = rawHistory.filter(h => h.day === currentDay && (String(h.item || '').toLowerCase().includes (q) || String (h.user || '').toLowerCase().includes (q) || String (h.notes || '').toLowerCase().includes(q)));
+  
+  const list = document.getElementById('history-list');
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-state"><i class="bi bi-journal-x"></i><h6>No logs match search</h6><p>There are no activity records for this day.</p></div>';
+    updateMetrics();
+    return;
+  }
+  
+  const groups = filtered.reduce((acc, h) => {
+    const key = String (h.item || 'Unknown');
+    if (!acc[key]) acc [key] = { item: key, entries: [], net: 0 };
+    acc[key].entries.push(h);
+    acc[key].net += parseChangeValue(h.change);
+    return acc;
+  }, {});
+  
+  const groupArray = Object.values(groups);
+  list.innerHTML = groupArray.map(group => {
+    const gid = `hist-${safeId (group.item)}`;
+    const count = group.entries.length;
+    const boxesAdded = group.entries.reduce((sum, h) => sum + Math.max(0, parseChangeValue(h.change)), 0);
+    const boxesRemoved = group.entries.reduce((sum, h) => sum + Math.abs(Math.min(0, parseChangeValue(h.change))), 0);
+    
+    return `
+    <div class="history-group">
+    <button class="history-group-btn" type="button" data-bs-toggle="collapse" data-bs-target="#${gid}" aria-expanded="false">
+    <div class="history-group-main">
+    <div class="history-group-icon"><i class="bi bi-box"></i></div>
+    <div>
+    <p class="history-group-title">${escapeHtml(group.item)}</p>
+    <div class="history-group-sub">${count} update${count > 1 ? 's' : ''} +${boxesAdded} / -${boxesRemoved} boxes</div>
+    </div>
+    </div>
+    <div class="history-group-meta">
+    <span class="badge ${group.net >= 0 ? 'bg-success' : 'bg-danger'}">${group.net >= 0 ? '+' : ''}${group.net}</span>
+    </div>
+    </button>
+    <div class="collapse" id="${gid}">
+    <div class="history-inner">
+    ${group.entries.map( h => `
+    <div class="history-entry">
+    <div class="history-entry-top">
+    <div>
+    <div class="fw-bold">${escapeHtml(h.user || '-')}</div>
+    <div class="history-entry-time">${escapeHtml(h.time || '00:00')} ${escapeHtml(h.day || '')}</div>
+    </div>
+    <span class="badge ${String(h.change).includes ('+') ? 'bg-success': 'bg-danger'}">${escapeHtml(h.change)}</span>
+    </div>
+    ${h.notes ? `<div class="history-note mt-2">"${escapeHtml(h.notes)}"</div>` : ''}
+    </div>
+    `).join('')}
+    </div>
+    </div>
+    </div>`;
+  }).join('');
+  updateMetrics();
+}
+
+function renderUsers() {
+  const q = document.getElementById('global-search').value.toLowerCase();
+  const filtered = rawUsers.filter( u => String (u.username || '').toLowerCase().includes (q) || String (u.role || '').toLowerCase().includes (q) || String(u.status || '').toLowerCase().includes(q));
+  
+  const list = document.getElementById('user-list');
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty-state"><i class="bi bi-people"></i><h6>No staff found</h6><p>Try a different search term.</p></div>`;
+    updateMetrics();
+    return;
+  }
+  
+  list.innerHTML = filtered.map( u => `
+  <div class="item-card border-0 mb-2 user-row">
+  <div class="d-flex justify-content-between align-items-center gap-3">
+  <div class="user-meta">
+  <div class="item-title">${escapeHtml(u.username)}</div>
+  <div class="user-role">${escapeHtml(u.role)}</div>
+  </div>
+  <div class="user-actions">
+  <span class="badge ${u.status === 'active' ? 'bg-success': 'bg-secondary'}">${escapeHtml(u.status)}</span>
+  <button class="btn btn-sm btn-outline-primary user-update-btn" onclick='event.stopPropagation(); openUserEditor(${JSON.stringify(u.username)}, ${JSON.stringify(u.password)}, ${JSON.stringify(u.role)}, ${JSON.stringify(u.status)})'><i class="bi bi-pencil-square me-1"></i> Update</button>
+  </div>
+  </div>
+  <div class="small text-muted mt-2">Use update to edit this user</div>
+  </div>`).join('');
+  updateMetrics();
+}
+
+function getSupplierOptions() {
+  const suppliers = [...new Set((rawOrders || []).map(o => String(o.supplier || '').trim()).filter (Boolean))].sort();
+  if (!suppliers.length) return ['Other / Custom'];
+  return [...suppliers, 'Other / Custom'];
+}
+
+function openOrderBuilder() {
+  loadCustomersForOrder();
+
+  google.script.run
+    .withSuccessHandler(res => {
+      const items = (res && res.items) ? res.items : [];
+      window.rawOrderItems = items;
+      renderUniversalOrderItems();
+      modals.order.show();
+    })
+    .withFailureHandler(err => {
+      notify(err.message || 'Could not load items', 'error');
+    })
+    .getDashboardData();
+}
+function toggleCustomSupplier() {
+  const value = document.getElementById('order-supplier').value;
+  document.getElementById('custom-supplier-wrap').classList.toggle('d-none', value === 'Other / Custom');
+}
+
+function renderUniversalOrderItems() {
+  const q = document.getElementById('order-builder-search').value.toLowerCase();
+  const tbody = document.getElementById('order-builder-body');
+  const items = (rawItems || []).filter(i => `${i.itemId} ${i.itemName} ${i.category} ${item.qty} ${item.unit || 'box'}`.toLowerCase().includes(q)).sort((a, b) => String(a.itemName).localeCompare (String(b.itemName)));
+  
+  if (!items.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state my-2"><i class="bi bi-box"></i><h6>No items found</h6><p>No matching stock items.</p></div></td></tr>`;
+    return;
+  }
+  
+  tbody.innerHTML = items.map(i => {
+    const key = safeId(i.itemId);
+    const currentQty = Number(i.qty) || 0;
+    return `
+    <tr>
+    <td><div class="fw-bold">${escapeHtml (i.itemName)}</div><div class="small text-muted">${escapeHtml(i.itemId)}</div></td>
+    <td>${escapeHtml (String(i.category || ''))}</td>
+    <td><span class="badge bg-light text-dark">${currentQty}</span></td>
+    <td style="min-width: 110px;"><input type="number" min="0" class="form-control form-control-sm" id="oq-${key}" oninput="updateOrderPreview('${key}', ${currentQty})"></td>
+    <td style="min-width:170px;"><input type="text" class="form-control form-control-sm" id="on-${key}" placeholder="Optional note"></td>
+    <td><strong id="exp-${key}">${currentQty}</strong></td>
+    </tr>`;
+  }).join('');
+}
+
+function updateOrderPreview(key, currentQty) {
+  const qtyEl = document.getElementById(`oq-${key}`);
+  const expEl = document.getElementById(`exp-${key}`);
+  if (!qtyEl || !expEl) return;
+  const qty = Number (qtyEl.value || 0);
+  expEl.innerText = currentQty + qty;
+}
+
+function completeUniversalOrder() {
+  const customerId = document.getElementById('order-customer').value;
+
+  if (!customerId) {
+    notify('Select customer', 'error');
+    return;
+  }
+
+  const supplier = document.getElementById('order-supplier').value;
+
+  const items = Array.from(document.querySelectorAll('#order-builder-body tr')).map(row => ({
+    itemId: row.dataset.itemId,
+    itemName: row.dataset.itemName,
+    orderQty: Number(row.querySelector('.order-qty-input')?.value || 0),
+    note: row.querySelector('.order-note-input')?.value || ''
+  })).filter(i => i.orderQty > 0);
+
+  if (!items.length) {
+    notify('Add items', 'error');
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(() => {
+      notify('Order created', 'success');
+      modals.order.hide();
+    })
+    .createCustomerOrder({
+      customerId,
+      supplier,
+      items
+    }, currentUser);
+}
+
+// ----------------------------------------------------
+// NEW ORDER CHECK FUNCTIONS
+// ----------------------------------------------------
+function processOrderAction(orderId, itemId, status, confirmedBy) {
+  if (status !== 'pending') {
+    notify('This item has been already confirmed by "' + (confirmedBy || 'Unknown') + '".', 'warning');
+    return;
+  }
+  processOrderLine(orderId, itemId);
+}
+function getLowStockThreshold(item) {
+  const t = Number(item.lowStockThreshold);
+  return Number.isFinite(t) && t >= 0 ? t : 5;
+}
+
+function checkBulkSelectStatus(e, status, confirmedBy) {
+  if (status !== 'pending') {
+    e.preventDefault();
+    notify('This item has been already confirmed by "' + (confirmedBy || 'Unknown') + '".', 'warning');
+    return false;
+  }
+  return true;
+}
+
+function renderOrders() {
+  const q = document.getElementById('global-search').value.toLowerCase();
+  let datePicker = document.getElementById('order-date-picker');
+  let dateVal = datePicker ? datePicker.value : '';
+
+  const matches = (rawOrders || []).filter(o => {
+    const txt = `${o.orderId} ${o.itemId} ${o.itemName} ${o.supplier} ${o.status} ${o.notes} ${o.createdBy}`.toLowerCase();
+    let searchMatch = txt.includes(q);
+    let dateMatch = true;
+
+    if (dateVal && o.createdAt) {
+      let d = new Date(o.createdAt);
+      if (!isNaN(d)) {
+        dateMatch = d.toISOString().substring(0, 10) === dateVal;
+      } else {
+        dateMatch = String(o.createdAt).includes(dateVal) || String(o.createdAt).includes(dateVal.split('-').reverse().join('/'));
+      }
+    }
+    return searchMatch && dateMatch;
+  });
+
+  const grouped = matches.reduce ((acc, o) => {
+    if (!acc[o.orderId]) acc [o.orderId] = { orderId: o.orderId, createdAt: o.createdAt, supplier: o.supplier, createdBy: o.createdBy, lines: [] };
+    acc[o.orderId].lines.push(o);
+    return acc;
+  }, {});
+
+  const groups = Object.values (grouped);
+  const list = document.getElementById('orders-list');
+  
+  if (!groups.length) {
+    list.innerHTML = `<div class="empty-state"><i class="bi bi-receipt"></i><h6>No orders yet</h6><p>Created orders will appear here as grouped cards.</p></div>`;
+    updateMetrics();
+    return;
+  }
+
+  list.innerHTML = groups.map(group => {
+    const collapseId = `ord-${safeId(group.orderId)}`;
+    const lines = group.lines;
+    const totalOrdered = lines.reduce((s, l) => s + (Number(l.orderQty) || 0), 0);
+    const totalReceived = lines.reduce((s, l) => s + (Number(l.receivedQty) || 0), 0);
+    const pendingCount = lines.filter( l => l.status === 'pending').length;
+    const confirmedCount = lines.filter( l => l.status === 'confirmed').length;
+    const manualCount = lines.filter( l => l.status === 'manual').length;
+    
+    const overallStatus = pendingCount === lines.length ? 'pending' : pendingCount > 0 ? 'partial' : manualCount > 0 && confirmedCount > 0 ? 'mixed' : manualCount > 0 ? 'manual' : 'confirmed';
+    const badgeClass = overallStatus === 'confirmed' ? 'bg-success' : overallStatus === 'manual' ? 'bg-warning text-dark' : overallStatus === 'pending' ? 'bg-secondary' : 'bg-info text-dark';
+    
+    return `
+    <div class="history-group">
+    <button class="history-group-btn" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false">
+    <div class="history-group-main">
+    <div class="history-group-icon"><i class="bi bi-cart-check"></i></div>
+    <div>
+    <p class="history-group-title">${escapeHtml(group.orderId)}</p>
+    <div class="history-group-sub">${escapeHtml(group.supplier || '-')} : ${group.lines.length} item${group.lines.length > 1 ? 's' : ''} Created ${escapeHtml(group.createdAt || '-')}</div>
+    </div>
+    </div>
+    <div class="history-group-meta">
+    <span class="badge ${badgeClass}">${escapeHtml(overallStatus)}</span>
+    <div class="small text-muted mt-2">${totalReceived}/${totalOrdered} received</div>
+    <div class="order-actions-top">
+    <button class="btn btn-sm btn-dark pdf-btn" onclick="event.stopPropagation(); openPDFSelector('${group.orderId}')"><i class="bi bi-file-earmark-pdf"></i></button>
+    </div>
+    </div>
+    </button>
+    <div class="collapse" id="${collapseId}">
+    <div class="history-inner">
+    <div class="table-responsive">
+    <table class="table table-hover align-middle modern-table mb-0">
+    <thead>
+    <tr>
+    <th class="${bulkOrderMode ? '' : 'd-none'} order-select-th">Select</th>
+    <th>Item</th><th>Order Qty</th><th>Received Qty</th><th>Expected Total</th><th>Status</th><th>Confirmed By</th><th>Confirmed At</th><th>Notes</th><th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    ${lines.map(l => {
+      const key = safeId(`${l.orderId}-${l.itemId}`);
+      const statusClass = l.status === 'confirmed' ? 'bg-success' : l.status === 'manual' ? 'bg-warning text-dark' : 'bg-secondary';
+      const isPending = l.status === 'pending';
+      const checked = !!selectedOrderLines [key];
+      
+      const nameColor = l.status === 'confirmed' ? 'text-success' : l.status === 'manual' ? 'text-warning' : 'text-dark';
+
+      const selectCell = bulkOrderMode
+      ? `<td class="order-select-td"><input type="checkbox" class="form-check-input" ${checked ? 'checked' : ''} onclick="return checkBulkSelectStatus(event, '${l.status}', '${escapeHtml(l.confirmedBy || '')}')" onchange="toggleOrderSelection('${l.orderId}', '${l.itemId}', this.checked)"></td>`
+      : `<td class="d-none order-select-td"></td>`;
+      
+      const receivedCell = isPending
+      ? `<input type="number" min="0" class="form-control form-control-sm" id="rc-${key}" placeholder="" value="${escapeHtml(orderDrafts [key]?.receivedQty || '')}" oninput="cacheOrderDraft('${l.orderId}', '${l.itemId}')">`
+      : `<span class="badge bg-light text-dark">${l.receivedQty === '' ? l.orderQty : l.receivedQty}</span>`;
+      
+      const noteInput = `<div class="d-flex gap-2"><input type="text" class="form-control form-control-sm" id="note-${key}" value="${escapeHtml(orderDrafts [key]?.note || l.notes || '')}" placeholder="Notes" oninput="cacheOrderDraft('${l.orderId}', '${l.itemId}')"><button class="btn btn-sm btn-outline-primary" onclick="saveOrderNote('${l.orderId}','${l.itemId}')">Save</button></div>`;
+      
+      const actionCell = bulkOrderMode
+      ? `<span class="badge bg-light text-dark">${checked ? 'Selected' : 'Pending'}</span>`
+      : `<button class="btn btn-sm btn-primary" onclick="processOrderAction('${l.orderId}', '${l.itemId}', '${l.status}', '${escapeHtml(l.confirmedBy || '')}')">Process</button>`;
+      
+      return `
+      <tr>
+      ${selectCell}
+      <td><div class="fw-bold ${nameColor}">${escapeHtml(l.itemName)}</div><div class="small text-muted">${escapeHtml(l.itemId)}</div></td>
+      <td>${l.orderQty}</td>
+      <td>${receivedCell}</td>
+      <td>${l.expectedTotal}</td>
+      <td><span class="badge ${statusClass}">${escapeHtml (l.status)}</span></td>
+      <td>${escapeHtml(l.confirmedBy || '-')}</td>
+      <td>${escapeHtml(l.confirmedAt || '-')}</td>
+      <td style="min-width: 220px; ">${noteInput}</td>
+      <td style="min-width:150px; ">${actionCell}</td>
+      </tr>`;
+    }).join('')}
+    </tbody>
+    </table>
+    </div>
+    </div>
+    </div>
+    </div>`;
+  }).join('');
+  updateMetrics();
+}
+
+function processOrderLine (orderId, itemId) {
+  const key = safeId (`${orderId}-${itemId}`);
+  const receivedEl = document.getElementById(`rc-${key}`);
+  const received = receivedEl ? receivedEl.value.trim() : '';
+  
+  showStatus ('Processing order');
+  google.script.run
+  .withSuccessHandler(() => { 
+    hideStatus(); notify('Order updated successfully', 'success'); loadDataForCurrentTab(); 
+  })
+  .withFailureHandler(err => { 
+    hideStatus(); notify (err && err.message ? err.message : 'Could not process order', 'error'); 
+  })
+  .confirmOrderLine (orderId, itemId, received, currentUser);
+}
+
+function saveOrderNote (orderId, itemId) {
+  const key = safeId(`${orderId}-${itemId}`);
+  const noteEl = document.getElementById(`note-${key}`);
+  const notes = noteEl ? noteEl.value : '';
+  
+  showStatus ('Saving note');
+  google.script.run
+  .withSuccessHandler(() => { 
+    hideStatus(); notify('Note saved', 'success'); loadDataForCurrentTab(); 
+  })
+  .withFailureHandler(err => { 
+    hideStatus(); notify(err && err.message ? err.message : 'Could not save note', 'error'); 
+  })
+  .saveOrderLineNote (orderId, itemId, notes);
+}
+
+function openAction(id, name, type) {
+  activeAction = { id, type };
+  document.getElementById('modal-title').innerText = type === 1 ? 'Add Stock' : 'Remove Stock';
+  document.getElementById('modal-item').innerText = name;
+  document.getElementById('modal-btn').className = `btn btn-lg w-100 text-white ${type === 1 ? 'btn-success' : 'btn-danger'}`;
+  document.getElementById('modal-qty').value = '';
+  document.getElementById('modal-notes').value = '';
+  modals.action.show();
+}
+
+function submitAction() {
+  const qtyInput = document.getElementById('modal-qty').value.trim();
+  const notes = document.getElementById('modal-notes').value.trim();
+  
+  if (!qtyInput && !notes) { notify ('Add a quantity or a note', 'warning'); return; }
+  
+  const qty = qtyInput ? Number(qtyInput) * activeAction.type : 0;
+  const itemIndex = rawItems.findIndex(i => String(i.itemId) === String(activeAction.id));
+  
+  if (itemIndex > -1 && qty !== 0) rawItems[itemIndex].qty += qty;
+  if (itemIndex > -1) { rawItems[itemIndex].note = notes; renderStock(); }
+  
+  modals.action.hide();
+  showStatus('Saving stock change');
+  google.script.run
+  .withSuccessHandler(() => { 
+    hideStatus(); notify(qty === 0 ? 'Note saved successfully': 'Stock updated successfully', 'success'); loadDataForCurrentTab(); 
+  })
+  .withFailureHandler(err => { 
+    hideStatus(); notify(err && err.message ? err.message : 'Could not save stock change', 'error'); loadDataForCurrentTab(); 
+  })
+  .updateStockAction (activeAction.id, qty, notes, currentUser);
+}
+
+function openUserEditor (username = '', pass = '', role = 'user', status = 'active') {
+  document.getElementById('u-modal-title').innerText = username ? 'Edit User' : 'Create User';
+  document.getElementById('u-old-name').value = username;
+  document.getElementById('u-name').value = username;
+  document.getElementById('u-pass').value = pass;
+  document.getElementById('u-role').value = role;
+  document.getElementById('u-status').value = status;
+  modals.user.show();
+}
+
+function submitUser() {
+  const oldName = document.getElementById('u-old-name').value;
+  const userObj = { 
+    username: document.getElementById('u-name').value.trim(), 
+    password: document.getElementById('u-pass').value, 
+    role: document.getElementById('u-role').value, 
+    status: document.getElementById('u-status').value 
+  };
+  
+  if (!userObj.username || !userObj.password) { notify('Missing details', 'warning'); return; }
+  
+  modals.user.hide();
+  showStatus('Saving user');
+  google.script.run
+  .withSuccessHandler(() => { 
+    hideStatus(); notify('User saved successfully', 'success'); loadDataForCurrentTab(); 
+  })
+  .withFailureHandler(err => { 
+    hideStatus(); notify(err && err.message ? err.message : 'Could not save user', 'error'); loadDataForCurrentTab(); 
+  })
+  .saveUser(oldName, userObj);
+}
+
+function downloadInventoryPDF() {
+  const filtered = getVisibleStockItems();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  // ===== HEADER =====
+  doc.setFillColor(37, 99, 235);
+  doc.rect(0, 0, pageWidth, 24, 'F');
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  doc.text(COMPANY_NAME, 14, 13);
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Phone: ${PHONE}`, pageWidth - 14, 10, { align: 'right' });
+  doc.text(`Location: ${LOCATION}`, pageWidth - 14, 15, { align: 'right' });
+
+  // ===== REPORT INFO =====
+  doc.setTextColor(15, 23, 42);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.text('Inventory Report', 14, 34);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 41);
+
+  let currentY = 50;
+
+  // ===== GROUP DATA =====
+  const grouped = {};
+
+  filtered.forEach(item => {
+    const main = item.mainCategory || 'Other';
+    const sub = item.category || 'General';
+
+    if (!grouped[main]) grouped[main] = {};
+    if (!grouped[main][sub]) grouped[main][sub] = [];
+
+    grouped[main][sub].push(item);
+  });
+
+  // ===== RENDER GROUPS =====
+  Object.keys(grouped).forEach(mainCategory => {
+
+    // Main Category Title
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(37, 99, 235);
+
+    if (currentY > pageHeight - 20) {
+      doc.addPage();
+      currentY = 20;
+    }
+
+    doc.text(mainCategory.toUpperCase(), 14, currentY);
+    currentY += 6;
+
+    Object.keys(grouped[mainCategory]).forEach(subCategory => {
+
+      // Sub Category Title
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.setTextColor(15, 23, 42);
+
+      if (currentY > pageHeight - 20) {
+        doc.addPage();
+        currentY = 20;
+      }
+
+      doc.text(subCategory, 16, currentY);
+      currentY += 4;
+
+      const rows = grouped[mainCategory][subCategory].map((i, idx) => ([
+        String(idx + 1),
+        String(i.itemName || ''),
+        String(Number(i.qty) || 0),
+        String(i.note || ''),
+        String(i.updatedAt || ''),
+        String(i.updatedBy || '')
+      ]));
+
+   doc.autoTable({
+  startY: currentY,
+  head: [['#', 'Item Name', 'Qty', 'Note', 'Updated At', 'Updated By']],
+  body: rows,
+  theme: 'grid',
+
+  styles: {
+    font: 'helvetica',
+    fontSize: 11,
+    cellPadding: 3,
+    valign: 'middle'
+  },
+
+  headStyles: {
+    fillColor: [37, 99, 235],
+    textColor: [255, 255, 255]
+  },
+
+  // ✅ ADD THIS BLOCK
+  columnStyles: {
+    0: { cellWidth: 10 },   // #
+    1: { cellWidth: 45 },   // Item Name
+    2: { cellWidth: 15 },   // Qty
+    3: { cellWidth: 40 },   // Note
+    4: { cellWidth: 35 },   // Updated At
+    5: { cellWidth: 35 }    // Updated By
+  },
+
+  margin: { left: 14, right: 14 },
+
+  didDrawPage: () => {
+    doc.setDrawColor(226, 232, 240);
+    doc.line(14, pageHeight - 12, pageWidth - 14, pageHeight - 12);
+
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+
+    doc.text(`${COMPANY_NAME} - Inventory`, 14, pageHeight - 7);
+    doc.text(`Page ${doc.internal.getNumberOfPages()}`, pageWidth - 14, pageHeight - 7, { align: 'right' });
+  }
+});
+
+      currentY = doc.lastAutoTable.finalY + 8;
+    });
+
+    currentY += 4;
+  });
+
+  // ===== SAVE =====
+  doc.save(`${COMPANY_NAME.replace(/\s+/g, '_')}_Inventory_${new Date().toISOString().slice(0,10)}.pdf`);
+
+  notify('PDF downloaded', 'success');
+}
+
+function generateOrderPDF (orderId) {
+  const orderLines = (rawOrders || []).filter(o => String(o.orderId) === String (orderId));
+  if (!orderLines.length) { notify('Order not found', 'warning'); return; }
+  
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const first = orderLines[0];
+  const supplier = String (first.supplier || '-');
+  const createdAt = String (first.createdAt || '-');
+  const createdBy = String (first.createdBy || '-');
+  
+  doc.setFillColor (37, 99, 235);
+  doc.rect(0, 0, pageWidth, 28, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(20);
+  doc.text(COMPANY_NAME, 14, 13);
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Order ID: ${orderId}`, 14, 22);
+  doc.text(`Supplier: ${supplier}`, pageWidth - 14, 12, {align: 'right' });
+  doc.text(`Created by: ${createdBy}`, pageWidth - 14, 18, { align: 'right' });
+  doc.text(`Created: ${createdAt}`, pageWidth - 14, 24, { align: 'right' });
+  
+  doc.setTextColor(15, 23, 42);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(15);
+  doc.text('Order Summary', 14, 40);
+  
+  const rows = orderLines.map((o, idx) => ([
+    String(idx + 1), String(o.itemName || ''), String(o.orderQty || 0), String(o.notes && String(o.notes).trim() ? o.notes: 'N/A')
+  ]));
+  
+  doc.autoTable({
+    startY: 48,
+    head: [['#', 'Item Name', 'Order Qty', 'Notes']],
+    body: rows,
+    theme: 'grid',
+    styles: { font: 'helvetica', fontSize: 12, cellPadding: 6, overflow: 'linebreak', textColor: [15, 23, 42], lineColor: [226, 232, 240], lineWidth: 0.2},
+    headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontStyle: 'bold' },
+    alternateRowStyles: { fillColor: [248, 250, 252] },
+    margin: { left: 14, right: 14, top: 48, bottom: 16},
+    didDrawPage: () => {
+      doc.setDrawColor (226, 232, 240);
+      doc.line (14, pageHeight - 12, pageWidth - 14, pageHeight - 12);
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text(`${COMPANY_NAME} - Order PDF`, 14, pageHeight - 7);
+      doc.text(`Page ${doc.internal.getNumberOfPages()}`, pageWidth - 14, pageHeight - 7, { align: 'right' });
+    }
+  });
+  doc.save(`${COMPANY_NAME.replace(/\s+/g, '_')}_${orderId}.pdf`);
+}
+
+function generateInternalOrderPDF (orderId) {
+  const orderLines = (rawOrders || []).filter(o => String(o.orderId) === String (orderId));
+  if (!orderLines.length) { notify('Order not found', 'warning'); return; }
+  
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const first = orderLines[0];
+  const totalOrdered = orderLines.reduce((s, l) => s + (Number(l.orderQty) || 0), 0);
+  const totalReceived = orderLines.reduce((s, l) => s + (Number(l.receivedQty) || 0), 0);
+  
+  doc.setFillColor (15, 23, 42);
+  doc.rect(0, 0, pageWidth, 24, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  doc.text(COMPANY_NAME, 14, 13);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Internal Order Report`, pageWidth - 14, 10, { align: 'right' });
+  doc.text(`Order ID: ${orderId}`, pageWidth - 14, 16, { align: 'right' });
+  doc.text(`Created by: ${String(first.createdBy || '-')}`, pageWidth - 14, 22, { align: 'right' });
+  
+  doc.setTextColor(15, 23, 42);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.text('Order Details', 14, 34);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.text(`Supplier: ${String(first.supplier || '-')}`, 14, 41);
+  doc.text(`Created At: ${String (first.createdAt || '-')}`, 14, 47);
+  doc.text(`Total Ordered: ${totalOrdered}`, 14, 53);
+  doc.text(`Total Received: ${totalReceived}`, 14, 59);
+  
+  const rows = orderLines.map((o, idx) => {
+    const received = o.receivedQty === '' ? o.orderQty : Number(o.receivedQty || 0);
+    const actualTotal = Number(o.prevQty || 0) + Number(received || 0);
+    return [
+      String(idx + 1), String (o.itemId || ''), String(o.itemName || ''), String (o.orderQty || 0),
+      String(received || 0), String (o.expectedTotal || 0), String(actualTotal || 0), String(o.status || ''),
+      String(o.confirmedBy || ''), String (o.confirmedAt || ''), String(o.notes || 'N/A')
+    ];
+  });
+  
+  doc.autoTable({
+    startY: 66,
+    head: [[ '#', 'Item ID', 'Item Name', 'Order Qty', 'Received Qty', 'Expected Total', 'Actual Total', 'Status', 'Confirmed By', 'Confirmed At', 'Notes']],
+    body: rows,
+    theme: 'grid',
+    styles: { font: 'helvetica', fontSize: 14, cellPadding: 6, overflow: 'linebreak', textColor: [15, 23, 42], lineColor: [226, 232, 240], lineWidth: 0.2},
+    headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
+    alternateRowStyles: { fillColor: [248, 250, 252]},
+    margin: { left: 14, right: 14, top: 66, bottom: 16 },
+    didDrawPage: () => {
+      doc.setDrawColor (226, 232, 240);
+      doc.line (14, pageHeight - 12, pageWidth - 14, pageHeight - 12);
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text(`${COMPANY_NAME} - Internal Order Report`, 14, pageHeight - 7);
+      doc.text(`Page ${doc.internal.getNumberOfPages()}`, pageWidth - 14, pageHeight - 7, { align: 'right' });
+    }
+  });
+  doc.save(`${COMPANY_NAME.replace(/\s+/g, '_')}_${orderId}_internal.pdf`);
+}
+
+function confirmOrderLine (orderId, itemId, mode) {
+  const key = safeId(`${orderId}-${itemId}`);
+  const receivedEl = document.getElementById(`rc-${key}`);
+  const received = receivedEl ? receivedEl.value : '';
+  
+  if (mode === 'manual' && !received) { notify('Enter received quantity for manual confirmation', 'warning'); return; }
+  
+  showStatus('Confirming order');
+  google.script.run
+  .withSuccessHandler(() => { 
+    hideStatus(); notify('Order confirmed', 'success'); loadDataForCurrentTab(); 
+  })
+  .withFailureHandler(err => { 
+    hideStatus(); notify(err && err.message ? err.message: 'Could not confirm order', 'error'); 
+  })
+  .confirmOrderLine (orderId, itemId, mode, received, currentUser);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  restoreSession();
+  showCustomerOrderCreateButton();
+});
+
+
+
+
+
+
+
+let lastOrderIds = new Set();
+let reminderInterval = null;
+let reminderActive = false;
+let soundUnlocked = false;
+
+/* =========================
+   LOUD ALARM SOUND
+========================= */
+const audio = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
+audio.preload = "auto";
+
+/* =========================
+   UNLOCK AUDIO (MOBILE FIX)
+========================= */
+document.addEventListener("click", () => {
+  if (!soundUnlocked) {
+    audio.play()
+      .then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+        soundUnlocked = true;
+      })
+      .catch(() => {});
+  }
+});
+
+/* =========================
+   PLAY SOUND
+========================= */
+function playSound() {
+  if (!soundUnlocked) return;
+
+  audio.currentTime = 0;
+  audio.play().catch(() => {});
+}
+
+/* =========================
+   TOAST
+========================= */
+function showToast(msg) {
+  const el = document.createElement("div");
+
+  el.innerText = msg;
+  el.style.position = "fixed";
+  el.style.bottom = "20px";
+  el.style.right = "20px";
+  el.style.background = "#000";
+  el.style.color = "#fff";
+  el.style.padding = "10px 14px";
+  el.style.borderRadius = "8px";
+  el.style.zIndex = "99999";
+  el.style.fontSize = "14px";
+
+  document.body.appendChild(el);
+
+  setTimeout(() => el.remove(), 3000);
+}
+
+/* =========================
+   MAIN LOAD FUNCTION
+========================= */
+function loadOrders() {
+  google.script.run.withSuccessHandler(function(orders) {
+
+    if (!Array.isArray(orders)) orders = [];
+
+    let currentIds = new Set();
+    let pendingCount = 0;
+
+    orders.forEach(o => {
+
+      currentIds.add(o.orderId);
+
+      const status = String(o.status || "").toLowerCase().trim();
+
+      if (status === "pending") {
+        pendingCount++;
+      }
+    });
+
+    /* =========================
+       NEW ORDER DETECTION
+    ========================= */
+    let newOrder = false;
+
+    orders.forEach(o => {
+      if (!lastOrderIds.has(o.orderId)) {
+        newOrder = true;
+      }
+    });
+
+    if (lastOrderIds.size > 0 && newOrder) {
+      playSound();
+      showToast("🔔 New Order Received");
+    }
+
+    lastOrderIds = currentIds;
+
+    renderOrders(orders);
+
+    /* =========================
+       REMINDER SYSTEM
+    ========================= */
+    if (pendingCount > 0) {
+      startReminder(pendingCount);
+    } else {
+      stopReminder();
+    }
+
+  }).getTodayCustomerOrders();
+}
+
+/* =========================
+   REMINDER START
+========================= */
+function startReminder(count) {
+
+  if (reminderActive) return;
+
+  reminderActive = true;
+
+  reminderInterval = setInterval(() => {
+    playSound();
+    showToast("⚠️ " + count + " Pending Orders Still Open!");
+  }, 12000); // every 12 sec
+}
+
+/* =========================
+   REMINDER STOP
+========================= */
+function stopReminder() {
+  reminderActive = false;
+
+  if (reminderInterval) {
+    clearInterval(reminderInterval);
+    reminderInterval = null;
+  }
+}
+
+/* =========================
+   AUTO REFRESH LOOP
+========================= */
+setInterval(loadOrders, 5000);
+
+/* INITIAL LOAD */
+window.onload = loadOrders;
+
+/* =========================
+   UI RENDER (BASIC)
+========================= */
+function renderOrders(orders) {
+  const box = document.getElementById("ordersContainer");
+  if (!box) return;
+
+  box.innerHTML = "";
+
+  orders.forEach(o => {
+
+    const status = String(o.status || "").toLowerCase();
+
+    const div = document.createElement("div");
+
+    div.style.padding = "10px";
+    div.style.margin = "8px 0";
+    div.style.border = "1px solid #ddd";
+    div.style.borderRadius = "8px";
+    div.style.background = status === "pending" ? "#fff3cd" : "#e9ecef";
+
+    div.innerHTML = `
+      <b>Order:</b> ${o.orderId}<br>
+      <b>Customer:</b> ${o.customerName}<br>
+      <b>Status:</b> ${status}<br>
+      <b>Total:</b> ${o.total || 0}
+    `;
+
+    box.appendChild(div);
+  });
+}
+</script>
+
+
+
+<script>
+  let rawCustomers = [];
+
+function loadCustomersForOrder(selectedId = '') {
+  google.script.run
+    .withSuccessHandler(res => {
+      rawCustomers = (res && res.customers) ? res.customers : [];
+      const sel = document.getElementById('order-customer');
+      if (!sel) return;
+
+      sel.innerHTML = '<option value="">Select customer</option>' +
+        rawCustomers.map(c => (
+          `<option value="${escapeHtml(c.customerId)}">${escapeHtml(c.name)}${c.phone ? ' • ' + escapeHtml(c.phone) : ''}</option>`
+        )).join('');
+
+      if (selectedId) sel.value = selectedId;
+    })
+    .withFailureHandler(err => {
+      notify(err.message || 'Could not load customers', 'error');
+    })
+    .getCustomersData();
+}
+
+function openCustomerModal() {
+  document.getElementById('customer-id').value = '';
+  document.getElementById('customer-name').value = '';
+  document.getElementById('customer-phone').value = '';
+  document.getElementById('customer-email').value = '';
+  document.getElementById('customer-location').value = '';
+  customerModal.show();
+}
+
+function saveCustomerFromModal() {
+  const payload = {
+    customerId: document.getElementById('customer-id').value.trim(),
+    name: document.getElementById('customer-name').value.trim(),
+    phone: document.getElementById('customer-phone').value.trim(),
+    email: document.getElementById('customer-email').value.trim(),
+    location: document.getElementById('customer-location').value.trim()
+  };
+
+  if (!payload.name) {
+    notify('Customer name is required', 'error');
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(res => {
+      notify('Customer saved', 'success');
+      customerModal.hide();
+      loadCustomersForOrder(res.customerId);
+    })
+    .withFailureHandler(err => {
+      notify(err.message || 'Could not save customer', 'error');
+    })
+    .saveCustomer(payload);
+}
+
+function openItemModal() {
+  document.getElementById('new-item-name').value = '';
+  document.getElementById('new-item-category').value = '';
+  document.getElementById('new-item-qty').value = '';
+  document.getElementById('new-item-unit').value = 'box';
+  document.getElementById('new-item-low').value = '5';
+  document.getElementById('new-item-note').value = '';
+  itemModal.show();
+}
+
+function saveNewItem() {
+  const payload = {
+    itemName: document.getElementById('new-item-name').value.trim(),
+    category: document.getElementById('new-item-category').value.trim(),
+    qty: Number(document.getElementById('new-item-qty').value || 0),
+    unit: document.getElementById('new-item-unit').value,
+    lowStockThreshold: Number(document.getElementById('new-item-low').value || 5),
+    note: document.getElementById('new-item-note').value.trim()
+  };
+
+  if (!payload.itemName || !payload.category) {
+    notify('Item name and category are required', 'error');
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(() => {
+      notify('Item added', 'success');
+      itemModal.hide();
+      loadDataForCurrentTab();
+    })
+    .withFailureHandler(err => {
+      notify(err.message || 'Could not add item', 'error');
+    })
+    .createStockItem(payload, currentUser);
+}
+
+function getSelectedCustomerPayload() {
+  const customerId = document.getElementById('order-customer').value;
+  const c = rawCustomers.find(x => x.customerId === customerId);
+
+  if (!c) {
+    return {
+      customerId: '',
+      customerName: '',
+      customerPhone: '',
+      customerEmail: '',
+      customerLocation: ''
+    };
+  }
+
+  return {
+    customerId: c.customerId,
+    customerName: c.name,
+    customerPhone: c.phone,
+    customerEmail: c.email,
+    customerLocation: c.location
+  };
+}
+</script>
+</body>
+</html>
